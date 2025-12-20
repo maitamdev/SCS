@@ -8,6 +8,9 @@ export interface Profile {
   role: UserRole;
   full_name: string | null;
   avatar_url: string | null;
+  phone?: string | null;
+  address?: string | null;
+  onboarding_completed?: boolean;
   created_at: string;
 }
 

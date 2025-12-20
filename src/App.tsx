@@ -10,6 +10,7 @@ import StationDetail from "./pages/StationDetail";
 import BookingPage from "./pages/BookingPage";
 import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import VehicleSettings from "./pages/VehicleSettings";
 import MyBookings from "./pages/MyBookings";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/booking/:id" element={<BookingPage />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/vehicle" element={<VehicleSettings />} />
               <Route path="/dashboard/bookings" element={<MyBookings />} />

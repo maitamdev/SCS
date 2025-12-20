@@ -38,7 +38,12 @@ export default function Auth() {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/dashboard');
+      // Check if onboarding is completed
+      if (user.profile?.onboarding_completed) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
     }
   }, [user, authLoading, navigate]);
 
@@ -60,7 +65,7 @@ export default function Auth() {
             title: 'Đăng nhập thành công',
             description: 'Chào mừng bạn trở lại!',
           });
-          navigate('/dashboard');
+          // Will redirect via useEffect
         }
       } else {
         const { error } = await signUp(formData.email, formData.password, formData.name);
@@ -75,7 +80,7 @@ export default function Auth() {
             title: 'Đăng ký thành công',
             description: 'Chào mừng bạn đến với SCS GO!',
           });
-          navigate('/dashboard');
+          navigate('/onboarding');
         }
       }
     } finally {
@@ -93,14 +98,9 @@ export default function Auth() {
         description: error,
         variant: 'destructive',
       });
-    } else {
-      toast({
-        title: 'Đăng nhập thành công',
-        description: 'Chào mừng bạn!',
-      });
-      navigate('/dashboard');
+      setLoading(false);
     }
-    setLoading(false);
+    // Will redirect via useEffect after auth state changes
   };
 
   return (
