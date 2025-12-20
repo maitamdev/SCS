@@ -3,8 +3,11 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
-import { enrichedStations } from '@/data/mockStations';
-import { Charger, ConnectorType } from '@/types';
+import { useStation } from '@/hooks/useStations';
+import { useBookings } from '@/hooks/useBookings';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Charger } from '@/types';
 import { CONNECTOR_LABELS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import {
@@ -14,20 +17,19 @@ import {
   Clock,
   Calendar,
   Coffee,
-  Wifi,
   Car,
-  ShoppingBag,
   Check,
   MapPin,
   CreditCard,
   QrCode,
-  Sparkles,
-  Battery,
   Timer,
+  Loader2,
+  ShoppingBag,
+  Wifi,
   Gift,
+  Sparkles,
 } from 'lucide-react';
 
-// Booking steps
 type BookingStep = 'charger' | 'time' | 'services' | 'payment' | 'confirm';
 
 const steps: { id: BookingStep; label: string; icon: React.ElementType }[] = [
@@ -129,7 +131,9 @@ export default function BookingPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
 
-  const station = useMemo(() => enrichedStations.find(s => s.id === id), [id]);
+  const { station, loading: stationLoading } = useStation(id || '');
+  const { createBooking } = useBookings();
+  const { toast } = useToast();
   const timeSlots = useMemo(() => generateTimeSlots(), []);
   
   // Group time slots by day
@@ -198,11 +202,42 @@ export default function BookingPage() {
   };
 
   const handleConfirm = async () => {
+    if (!selectedCharger || !selectedTime || !station) return;
+    
     setIsProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const endTime = new Date(selectedTime.getTime() + duration * 60000);
+    
+    const { error } = await createBooking({
+      station_id: station.id,
+      charger_id: selectedCharger.id,
+      start_time: selectedTime.toISOString(),
+      end_time: endTime.toISOString(),
+      total_price: totalPrice,
+      services: selectedServices,
+      payment_method: paymentMethod,
+    });
+    
     setIsProcessing(false);
-    setBookingComplete(true);
+    
+    if (error) {
+      toast({
+        title: 'Lỗi đặt chỗ',
+        description: error,
+        variant: 'destructive',
+      });
+    } else {
+      setBookingComplete(true);
+    }
   };
+
+  if (stationLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!station) {
     return (
