@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Zap,
   User,
@@ -33,6 +34,13 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,15 +103,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* User section */}
           <div className="p-4 border-t border-border/60">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                {user?.profile?.avatar_url ? (
+                  <img src={user.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-primary" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground truncate">Nguyễn Văn A</p>
+                <p className="font-medium text-foreground truncate">{user?.profile?.full_name || 'User'}</p>
                 <p className="text-xs text-muted-foreground">Gói Plus</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full justify-start text-muted-foreground"
+              onClick={handleSignOut}
+            >
               <LogOut className="w-4 h-4" />
               Đăng xuất
             </Button>

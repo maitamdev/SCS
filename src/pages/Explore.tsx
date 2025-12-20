@@ -6,31 +6,20 @@ import { FiltersBar } from '@/components/stations/FiltersBar';
 import { StationCardSkeleton } from '@/components/ui/skeleton';
 import { NoStationsFound } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
-import { enrichedStations } from '@/data/mockStations';
+import { useStations } from '@/hooks/useStations';
+import { useAuth } from '@/contexts/AuthContext';
 import { getTopRecommendations } from '@/ai/recommendation';
 import { StationFilters, SortOption, Vehicle, OptimizationMode } from '@/types';
-import { 
-  MapPin, 
-  Sparkles,
-} from 'lucide-react';
+import { MapPin, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Default vehicle profile for demo
-const defaultVehicle: Vehicle = {
-  id: 'demo',
-  user_id: 'demo',
-  name: 'Demo Vehicle',
-  battery_kwh: 82,
-  soc_current: 35,
-  consumption_kwh_per_100km: 18,
-  preferred_connector: 'CCS2',
-  updated_at: new Date().toISOString(),
-};
-
 export default function Explore() {
-  const [loading, setLoading] = useState(true);
+  const { stations, loading: stationsLoading } = useStations();
+  const { user } = useAuth();
+  
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [locationLoading, setLocationLoading] = useState(true);
   const [filters, setFilters] = useState<StationFilters>({
     connectors: [],
     minPower: null,
@@ -44,65 +33,63 @@ export default function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
   const [optimizationMode, setOptimizationMode] = useState<OptimizationMode>('balanced');
 
+  // Default vehicle for AI recommendations
+  const defaultVehicle: Vehicle = user?.vehicle || {
+    id: 'demo',
+    user_id: 'demo',
+    name: 'Demo Vehicle',
+    battery_kwh: 82,
+    soc_current: 35,
+    consumption_kwh_per_100km: 18,
+    preferred_connector: 'CCS2',
+    updated_at: new Date().toISOString(),
+  };
+
   // Get user location
   useEffect(() => {
     const getLocation = () => {
-      // Check if geolocation is available
       if (!('geolocation' in navigator)) {
-        console.log('Geolocation not supported');
         setUserLocation({ lat: 21.0285, lng: 105.8542 });
-        setLocationError('Trình duyệt không hỗ trợ định vị. Đang sử dụng vị trí mặc định (Hà Nội).');
-        setLoading(false);
+        setLocationError('Trình duyệt không hỗ trợ định vị.');
+        setLocationLoading(false);
         return;
       }
 
-      // Set a timeout in case geolocation takes too long
       const timeoutId = setTimeout(() => {
-        console.log('Geolocation timeout');
         setUserLocation({ lat: 21.0285, lng: 105.8542 });
-        setLocationError('Lấy vị trí quá lâu. Đang sử dụng vị trí mặc định (Hà Nội).');
-        setLoading(false);
+        setLocationError('Lấy vị trí quá lâu.');
+        setLocationLoading(false);
       }, 10000);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
           clearTimeout(timeoutId);
-          console.log('Got location:', position.coords);
           setUserLocation({
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
           setLocationError(null);
-          setLoading(false);
+          setLocationLoading(false);
         },
         (error) => {
           clearTimeout(timeoutId);
-          console.log('Geolocation error:', error.code, error.message);
-          
           let errorMessage = 'Không thể lấy vị trí. ';
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage += 'Bạn đã từ chối quyền truy cập vị trí.';
+              errorMessage += 'Bạn đã từ chối quyền truy cập.';
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage += 'Thông tin vị trí không khả dụng.';
+              errorMessage += 'Vị trí không khả dụng.';
               break;
             case error.TIMEOUT:
-              errorMessage += 'Yêu cầu vị trí đã hết thời gian.';
+              errorMessage += 'Hết thời gian.';
               break;
-            default:
-              errorMessage += 'Lỗi không xác định.';
           }
-          
           setUserLocation({ lat: 21.0285, lng: 105.8542 });
-          setLocationError(errorMessage + ' Đang sử dụng vị trí mặc định (Hà Nội).');
-          setLoading(false);
+          setLocationError(errorMessage);
+          setLocationLoading(false);
         },
-        {
-          enableHighAccuracy: false,
-          timeout: 10000,
-          maximumAge: 300000, // Cache location for 5 minutes
-        }
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
       );
     };
 
@@ -111,10 +98,9 @@ export default function Explore() {
 
   // Calculate distance and AI scores
   const stationsWithData = useMemo(() => {
-    if (!userLocation) return [];
+    if (!userLocation || stations.length === 0) return [];
 
-    // Calculate distances
-    const stationsWithDistance = enrichedStations.map((station) => {
+    const stationsWithDistance = stations.map((station) => {
       const R = 6371;
       const dLat = ((station.lat - userLocation.lat) * Math.PI) / 180;
       const dLng = ((station.lng - userLocation.lng) * Math.PI) / 180;
@@ -139,7 +125,6 @@ export default function Explore() {
       stations: stationsWithDistance,
     }, 100);
 
-    // Map AI scores to stations
     const stationScores = new Map(
       recommendations.map((r) => [r.station.id, { score: r.match_percent, reasons: r.reasons }])
     );
@@ -149,13 +134,12 @@ export default function Explore() {
       aiScore: stationScores.get(station.id)?.score,
       aiReasons: stationScores.get(station.id)?.reasons,
     }));
-  }, [userLocation, optimizationMode]);
+  }, [userLocation, stations, optimizationMode, defaultVehicle]);
 
   // Filter and sort stations
   const filteredStations = useMemo(() => {
     let result = stationsWithData;
 
-    // Search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -166,7 +150,6 @@ export default function Explore() {
       );
     }
 
-    // Filters
     if (filters.connectors.length > 0) {
       result = result.filter((s) =>
         s.chargers?.some((c) => filters.connectors.includes(c.connector_type))
@@ -189,7 +172,6 @@ export default function Explore() {
       result = result.filter((s) => (s.available_chargers || 0) > 0);
     }
 
-    // Sort
     switch (sortBy) {
       case 'ai_recommended':
         result = [...result].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
@@ -211,6 +193,8 @@ export default function Explore() {
     return result;
   }, [stationsWithData, filters, sortBy, searchQuery]);
 
+  const loading = stationsLoading || locationLoading;
+
   const optimizationModes: { value: OptimizationMode; label: string }[] = [
     { value: 'balanced', label: 'Cân bằng' },
     { value: 'fastest', label: 'Nhanh nhất' },
@@ -225,24 +209,19 @@ export default function Explore() {
 
       <main className="pt-20 pb-8">
         <div className="container mx-auto px-4">
-          {/* Page Header */}
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold mb-2">Khám phá trạm sạc</h1>
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="w-4 h-4" />
               <span className="text-sm">
-                {userLocation 
-                  ? `Đang hiển thị trạm gần bạn` 
-                  : 'Đang lấy vị trí...'
-                }
+                {userLocation ? 'Đang hiển thị trạm gần bạn' : 'Đang lấy vị trí...'}
               </span>
               {locationError && (
-                <span className="text-xs text-warning">{locationError}</span>
+                <span className="text-xs text-yellow-500">{locationError}</span>
               )}
             </div>
           </div>
 
-          {/* AI Optimization Mode */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-primary" />
@@ -266,7 +245,6 @@ export default function Explore() {
             </div>
           </div>
 
-          {/* Filters */}
           <FiltersBar
             filters={filters}
             onFiltersChange={setFilters}
@@ -276,7 +254,6 @@ export default function Explore() {
             onSearchChange={setSearchQuery}
           />
 
-          {/* Results */}
           <div className="mt-6">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-muted-foreground">
@@ -293,19 +270,16 @@ export default function Explore() {
             ) : filteredStations.length === 0 ? (
               <NoStationsFound />
             ) : (
-              <motion.div 
+              <motion.div
                 className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
                 initial="hidden"
                 animate="visible"
                 variants={{
                   hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.05 },
-                  },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
                 }}
               >
-                {filteredStations.slice(0, 30).map((station, i) => (
+                {filteredStations.slice(0, 30).map((station) => (
                   <motion.div
                     key={station.id}
                     variants={{
