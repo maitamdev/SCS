@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { useStation } from '@/hooks/useStations';
-import { useBookings } from '@/hooks/useBookings';
-import { useAuth } from '@/contexts/AuthContext';
+import { useBookings, useStationBookings } from '@/hooks/useBookings';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Charger } from '@/types';
@@ -35,7 +34,6 @@ type BookingStep = 'charger' | 'time' | 'services' | 'payment' | 'confirm';
 
 export default function BookingPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { t } = useLanguage();
   
   const steps: { id: BookingStep; label: string; icon: React.ElementType }[] = [
@@ -94,8 +92,22 @@ export default function BookingPage() {
     },
   ];
 
-  // Time slots
-  const generateTimeSlots = () => {
+  const [currentStep, setCurrentStep] = useState<BookingStep>('charger');
+  const [selectedCharger, setSelectedCharger] = useState<Charger | null>(null);
+  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
+  const [duration, setDuration] = useState(30);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<string>('card');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [bookingComplete, setBookingComplete] = useState(false);
+
+  const { station, loading: stationLoading } = useStation(id || '');
+  const { createBooking } = useBookings();
+  const { isTimeSlotAvailable, loading: bookingsLoading } = useStationBookings(id || '', selectedCharger?.id);
+  const { toast } = useToast();
+  
+  // Generate time slots with real availability check
+  const timeSlots = useMemo(() => {
     const slots = [];
     const now = new Date();
     const currentHour = now.getHours();
@@ -111,32 +123,21 @@ export default function BookingPage() {
           const slotDate = new Date(date);
           slotDate.setHours(hour, min, 0, 0);
           
+          // Check real availability from database
+          const available = isTimeSlotAvailable(slotDate, duration);
+          
           slots.push({
             date: slotDate,
             label: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
             dayLabel: day === 0 ? t('booking.today') : day === 1 ? t('booking.tomorrow') : slotDate.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' }),
-            available: Math.random() > 0.2,
+            available,
             peak: hour >= 17 && hour <= 20,
           });
         }
       }
     }
     return slots;
-  };
-
-  const [currentStep, setCurrentStep] = useState<BookingStep>('charger');
-  const [selectedCharger, setSelectedCharger] = useState<Charger | null>(null);
-  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
-  const [duration, setDuration] = useState(30);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<string>('card');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [bookingComplete, setBookingComplete] = useState(false);
-
-  const { station, loading: stationLoading } = useStation(id || '');
-  const { createBooking } = useBookings();
-  const { toast } = useToast();
-  const timeSlots = useMemo(() => generateTimeSlots(), []);
+  }, [duration, isTimeSlotAvailable, t]);
   
   // Group time slots by day
   const groupedSlots = useMemo(() => {

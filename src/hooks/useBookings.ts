@@ -152,3 +152,57 @@ export function useBookings() {
 
   return { bookings, loading, error, createBooking, cancelBooking, refetch: fetchBookings };
 }
+
+// Hook to get all bookings for a specific station (for checking availability)
+export function useStationBookings(stationId: string, chargerId?: string) {
+  const [stationBookings, setStationBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStationBookings = useCallback(async () => {
+    if (!supabase || !stationId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      let query = supabase
+        .from('bookings')
+        .select('*')
+        .eq('station_id', stationId)
+        .in('status', ['confirmed', 'held'])
+        .gte('end_time', new Date().toISOString());
+
+      if (chargerId) {
+        query = query.eq('charger_id', chargerId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setStationBookings(data || []);
+    } catch (err) {
+      console.error('Fetch station bookings error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [stationId, chargerId]);
+
+  useEffect(() => {
+    fetchStationBookings();
+  }, [fetchStationBookings]);
+
+  // Check if a time slot is available
+  const isTimeSlotAvailable = useCallback((startTime: Date, duration: number) => {
+    const endTime = new Date(startTime.getTime() + duration * 60000);
+
+    return !stationBookings.some(booking => {
+      const bookingStart = new Date(booking.start_time);
+      const bookingEnd = new Date(booking.end_time);
+
+      // Check if there's any overlap
+      return (startTime < bookingEnd && endTime > bookingStart);
+    });
+  }, [stationBookings]);
+
+  return { stationBookings, loading, isTimeSlotAvailable, refetch: fetchStationBookings };
+}

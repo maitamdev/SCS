@@ -133,6 +133,7 @@ export const translations = {
     'booking.peakHour': 'Giờ cao điểm',
     'booking.today': 'Hôm nay',
     'booking.tomorrow': 'Ngày mai',
+    'booking.slotBooked': 'Đã được đặt',
 
     // Dashboard
     'dashboard.welcome': 'Xin chào',
@@ -564,6 +565,7 @@ export const translations = {
     'booking.peakHour': 'Peak hour',
     'booking.today': 'Today',
     'booking.tomorrow': 'Tomorrow',
+    'booking.slotBooked': 'Already booked',
 
     // Dashboard
     'dashboard.welcome': 'Hello',
