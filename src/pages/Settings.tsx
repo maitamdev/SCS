@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import {
   User,
@@ -20,7 +21,8 @@ import {
   MapPin,
   Bell,
   Moon,
-  Globe,
+  Sun,
+  Monitor,
   Shield,
   Trash2,
   Save,
@@ -28,10 +30,10 @@ import {
   LogOut,
   ChevronRight,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function Settings() {
   const { user, updateProfile, signOut } = useAuth();
+  const { theme, setTheme, isDark } = useTheme();
   const { toast } = useToast();
 
   const [saving, setSaving] = useState(false);
@@ -44,7 +46,6 @@ export default function Settings() {
   const [settings, setSettings] = useState({
     notifications: true,
     emailNotifications: true,
-    darkMode: true,
     language: 'vi',
   });
 
@@ -206,23 +207,51 @@ export default function Settings() {
           transition={{ delay: 0.2 }}
         >
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Moon className="w-5 h-5 text-primary" />
+            {isDark ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
             Giao diện
           </h3>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Chế độ tối</p>
-                <p className="text-sm text-muted-foreground">Sử dụng giao diện tối</p>
+            <div>
+              <p className="font-medium text-foreground mb-3">Chế độ hiển thị</p>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => setTheme('light')}
+                  className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    theme === 'light' 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="text-sm font-medium">Sáng</span>
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    theme === 'dark' 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="text-sm font-medium">Tối</span>
+                </button>
+                <button
+                  onClick={() => setTheme('system')}
+                  className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    theme === 'system' 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <Monitor className={`w-5 h-5 ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="text-sm font-medium">Hệ thống</span>
+                </button>
               </div>
-              <Switch
-                checked={settings.darkMode}
-                onCheckedChange={(checked) => setSettings({ ...settings, darkMode: checked })}
-              />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-2">
               <div>
                 <p className="font-medium text-foreground">Ngôn ngữ</p>
                 <p className="text-sm text-muted-foreground">Chọn ngôn ngữ hiển thị</p>
