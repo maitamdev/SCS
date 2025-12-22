@@ -43,7 +43,7 @@ export function useBookings() {
     }
 
     try {
-      const firebaseUserId = user.uid;
+      const firebaseUserId = user.id;
       
       const { data, error: fetchError } = await supabase
         .from('bookings')
@@ -85,7 +85,7 @@ export function useBookings() {
 
     try {
       // Use Firebase UID as user_id (stored as text in Supabase)
-      const firebaseUserId = user.uid;
+      const firebaseUserId = user.id;
       
       const { data, error: insertError } = await supabase
         .from('bookings')
