@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
@@ -910,7 +910,7 @@ function BookingSuccess({
   totalPrice,
   t
 }: { 
-  station: { id: string; name: string; address: string }; 
+  station: { id: string; name: string; address: string; lat?: number; lng?: number }; 
   selectedCharger: Charger | null; 
   selectedTime: Date | null; 
   duration: number; 
@@ -918,6 +918,38 @@ function BookingSuccess({
   t: (key: string) => string;
 }) {
   const bookingCode = `SCS${Date.now().toString().slice(-8)}`;
+  
+  // Function to open navigation
+  const openNavigation = () => {
+    const lat = station.lat;
+    const lng = station.lng;
+    const destination = encodeURIComponent(station.address);
+    
+    // Check if on mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (lat && lng) {
+      if (isMobile) {
+        // Try to open native maps app
+        // iOS will open Apple Maps, Android will open Google Maps
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
+      } else {
+        // Desktop - open Google Maps in new tab
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
+      }
+    } else {
+      // Fallback to address search
+      window.open(`https://www.google.com/maps/search/?api=1&query=${destination}`, '_blank');
+    }
+  };
+
+  // Auto open navigation after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      openNavigation();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
   
   return (
     <div className="min-h-screen bg-background">
@@ -935,6 +967,7 @@ function BookingSuccess({
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">{t('booking.success.title')}</h1>
             <p className="text-foreground/60">{t('booking.success.confirmed')}</p>
+            <p className="text-sm text-primary mt-2 animate-pulse">{t('booking.success.openingMap')}</p>
           </motion.div>
 
           <motion.div
@@ -1002,11 +1035,9 @@ function BookingSuccess({
                   {t('booking.success.viewSchedule')}
                 </Link>
               </Button>
-              <Button variant="hero" className="flex-1" asChild>
-                <Link to={`/station/${station.id}`}>
-                  <MapPin className="w-4 h-4" />
-                  {t('station.directions')}
-                </Link>
+              <Button variant="hero" className="flex-1" onClick={openNavigation}>
+                <MapPin className="w-4 h-4" />
+                {t('station.directions')}
               </Button>
             </div>
 

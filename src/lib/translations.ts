@@ -427,6 +427,7 @@ export const translations = {
     'booking.success.paid': 'Đã thanh toán',
     'booking.success.note': 'Lưu ý:',
     'booking.success.noteText': 'Vui lòng đến trạm trước giờ hẹn 5-10 phút. Nếu không check-in trong vòng 15 phút, đặt chỗ sẽ tự động hủy.',
+    'booking.success.openingMap': 'Đang mở bản đồ chỉ đường...',
   },
   en: {
     // Common
@@ -856,6 +857,7 @@ export const translations = {
     'booking.success.paid': 'Paid',
     'booking.success.note': 'Note:',
     'booking.success.noteText': 'Please arrive 5-10 minutes before your appointment. If you don\'t check-in within 15 minutes, your booking will be automatically cancelled.',
+    'booking.success.openingMap': 'Opening navigation...',
   },
 } as const;
 
