@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -6,16 +5,14 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Crown,
-  Zap,
-  Sparkles,
   Check,
   ArrowRight,
   Calendar,
   Brain,
   Heart,
-  TrendingUp,
   Loader2,
   Gift,
 } from 'lucide-react';
@@ -68,6 +65,7 @@ export default function Subscription() {
   const { user } = useAuth();
   const { bookings, loading: bookingsLoading } = useBookings();
   const { favorites, loading: favoritesLoading } = useFavorites();
+  const { t } = useLanguage();
   
   // Get current plan from user data (default to free)
   const planCode = user?.profile?.subscription_plan || 'free';
@@ -107,8 +105,8 @@ export default function Subscription() {
     <DashboardLayout>
       <div className="max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gói dịch vụ</h1>
-          <p className="text-muted-foreground">Quản lý gói đăng ký của bạn</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('subscription.title')}</h1>
+          <p className="text-muted-foreground">{t('subscription.subtitle')}</p>
         </div>
 
         {/* Current Plan */}
@@ -132,13 +130,13 @@ export default function Subscription() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-foreground">Gói {currentPlan.name}</h2>
+                  <h2 className="text-xl font-bold text-foreground">{t('subscription.currentPlan')}: {currentPlan.name}</h2>
                   <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                     planCode === 'free'
                       ? 'bg-muted text-muted-foreground'
                       : 'bg-primary/10 text-primary'
                   }`}>
-                    {planCode === 'free' ? 'Cơ bản' : 'Đang hoạt động'}
+                    {planCode === 'free' ? t('subscription.basic') : t('subscription.active')}
                   </span>
                 </div>
                 <p className="text-muted-foreground">
@@ -149,7 +147,7 @@ export default function Subscription() {
             {planCode !== 'pro' && (
               <Button variant="outline" asChild>
                 <Link to="/pricing">
-                  Nâng cấp
+                  {t('subscription.upgrade')}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
@@ -168,7 +166,7 @@ export default function Subscription() {
           {planCode !== 'free' && (
             <div className="pt-4 border-t border-border">
               <p className="text-sm text-muted-foreground">
-                Gia hạn tiếp theo: <span className="text-foreground font-medium">{renewDateStr}</span>
+                {t('subscription.renewDate')}: <span className="text-foreground font-medium">{renewDateStr}</span>
               </p>
             </div>
           )}
@@ -181,17 +179,17 @@ export default function Subscription() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h3 className="font-semibold text-foreground mb-4">Sử dụng tháng này</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t('subscription.usage')}</h3>
           
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-foreground flex items-center gap-2">
                   <Brain className="w-4 h-4" />
-                  Lượt AI gợi ý (hôm nay)
+                  {t('subscription.aiCalls')}
                 </span>
                 <span className="text-sm font-medium text-foreground">
-                  {usage.aiCalls.used} / {usage.aiCalls.limit === -1 ? '∞' : usage.aiCalls.limit}
+                  {usage.aiCalls.used} / {usage.aiCalls.limit === -1 ? t('subscription.unlimited') : usage.aiCalls.limit}
                 </span>
               </div>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -210,10 +208,10 @@ export default function Subscription() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-foreground flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  Booking
+                  {t('subscription.bookingsCount')}
                 </span>
                 <span className="text-sm font-medium text-foreground">
-                  {usage.bookings.used} / {usage.bookings.limit === -1 ? '∞' : usage.bookings.limit}
+                  {usage.bookings.used} / {usage.bookings.limit === -1 ? t('subscription.unlimited') : usage.bookings.limit}
                 </span>
               </div>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -232,10 +230,10 @@ export default function Subscription() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-foreground flex items-center gap-2">
                   <Heart className="w-4 h-4" />
-                  Yêu thích
+                  {t('subscription.favoritesCount')}
                 </span>
                 <span className="text-sm font-medium text-foreground">
-                  {usage.favorites.used} / {usage.favorites.limit === -1 ? '∞' : usage.favorites.limit}
+                  {usage.favorites.used} / {usage.favorites.limit === -1 ? t('subscription.unlimited') : usage.favorites.limit}
                 </span>
               </div>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -264,17 +262,14 @@ export default function Subscription() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Cần thêm tính năng?</h3>
+                <h3 className="font-semibold text-foreground mb-1">{t('subscription.needMore')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {planCode === 'free' 
-                    ? 'Nâng cấp lên Plus để có thêm AI gợi ý và booking'
-                    : 'Nâng cấp lên Pro để có AI không giới hạn và analytics nâng cao'
-                  }
+                  {t('subscription.upgradeDesc')}
                 </p>
               </div>
               <Button variant="hero" asChild>
                 <Link to="/pricing">
-                  Xem gói {planCode === 'free' ? 'Plus' : 'Pro'}
+                  {t('subscription.upgrade')}
                 </Link>
               </Button>
             </div>

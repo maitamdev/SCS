@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Zap,
   User,
@@ -14,17 +14,17 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TranslationKey } from '@/lib/translations';
 
-const sidebarLinks = [
-  { href: '/dashboard', label: 'Tổng quan', icon: User },
-  { href: '/dashboard/vehicle', label: 'Xe của tôi', icon: Car },
-  { href: '/dashboard/favorites', label: 'Yêu thích', icon: Heart },
-  { href: '/dashboard/bookings', label: 'Lịch đặt chỗ', icon: Calendar },
-  { href: '/dashboard/subscription', label: 'Gói dịch vụ', icon: CreditCard },
-  { href: '/dashboard/settings', label: 'Cài đặt', icon: Settings },
+const sidebarLinks: { href: string; labelKey: TranslationKey; icon: typeof User }[] = [
+  { href: '/dashboard', labelKey: 'nav.dashboard', icon: User },
+  { href: '/dashboard/vehicle', labelKey: 'nav.vehicle', icon: Car },
+  { href: '/dashboard/favorites', labelKey: 'nav.favorites', icon: Heart },
+  { href: '/dashboard/bookings', labelKey: 'nav.bookings', icon: Calendar },
+  { href: '/dashboard/subscription', labelKey: 'nav.subscription', icon: CreditCard },
+  { href: '/dashboard/settings', labelKey: 'nav.settings', icon: Settings },
 ];
 
 interface DashboardLayoutProps {
@@ -36,6 +36,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
 
   const handleSignOut = async () => {
     await signOut();
@@ -47,8 +48,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Mobile header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card/95 backdrop-blur-xl border-b border-border/60 z-40 flex items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary-foreground" fill="currentColor" />
+          <div className="w-8 h-8 rounded-lg overflow-hidden">
+            <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
           </div>
           <span className="font-bold gradient-text">SCS GO</span>
         </Link>
@@ -70,8 +71,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logo */}
           <div className="h-16 flex items-center gap-2 px-4 border-b border-border/60">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-primary-foreground" fill="currentColor" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden">
+                <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-bold gradient-text">SCS GO</span>
             </Link>
@@ -94,7 +95,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   )}
                 >
                   <link.icon className="w-5 h-5" />
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               );
             })}
@@ -112,7 +113,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-foreground truncate">{user?.profile?.full_name || 'User'}</p>
-                <p className="text-xs text-muted-foreground">Gói Plus</p>
+                <p className="text-xs text-muted-foreground">{t('subscription.basic')}</p>
               </div>
             </div>
             <Button 
@@ -122,7 +123,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               onClick={handleSignOut}
             >
               <LogOut className="w-4 h-4" />
-              Đăng xuất
+              {t('auth.logout')}
             </Button>
           </div>
         </div>

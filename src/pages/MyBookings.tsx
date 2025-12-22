@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/hooks/useBookings';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Calendar,
   Clock,
@@ -22,6 +23,7 @@ export default function MyBookings() {
   const [tab, setTab] = useState<BookingTab>('upcoming');
   const { bookings, loading, cancelBooking } = useBookings();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const now = new Date();
@@ -74,13 +76,13 @@ export default function MyBookings() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-success/10 text-success">Đã xác nhận</span>;
+        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-success/10 text-success">{t('bookings.status.confirmed')}</span>;
       case 'held':
-        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">Đang giữ</span>;
+        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">{t('bookings.status.confirmed')}</span>;
       case 'completed':
-        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">Hoàn thành</span>;
+        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">{t('bookings.status.completed')}</span>;
       case 'cancelled':
-        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">Đã hủy</span>;
+        return <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">{t('bookings.status.cancelled')}</span>;
       default:
         return null;
     }
@@ -91,13 +93,13 @@ export default function MyBookings() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Lịch đặt chỗ</h1>
-            <p className="text-foreground/60">Quản lý các lượt đặt chỗ sạc xe</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('bookings.title')}</h1>
+            <p className="text-foreground/60">{t('bookings.subtitle')}</p>
           </div>
           <Button variant="hero" asChild>
             <Link to="/explore">
               <Calendar className="w-4 h-4" />
-              Đặt chỗ mới
+              {t('station.bookNow')}
             </Link>
           </Button>
         </div>
@@ -114,7 +116,7 @@ export default function MyBookings() {
             )}
           >
             <Clock className="w-4 h-4" />
-            Sắp tới ({upcomingBookings.length})
+            {t('bookings.upcoming')} ({upcomingBookings.length})
           </button>
           <button
             onClick={() => setTab('past')}
@@ -126,7 +128,7 @@ export default function MyBookings() {
             )}
           >
             <CheckCircle2 className="w-4 h-4" />
-            Đã qua ({pastBookings.length})
+            {t('bookings.past')} ({pastBookings.length})
           </button>
         </div>
 
@@ -139,16 +141,14 @@ export default function MyBookings() {
           <div className="card-premium p-12 text-center">
             <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">
-              {tab === 'upcoming' ? 'Chưa có lịch đặt chỗ' : 'Chưa có lịch sử'}
+              {t('bookings.noBookings')}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {tab === 'upcoming' 
-                ? 'Tìm trạm sạc và đặt chỗ ngay!' 
-                : 'Các lượt sạc đã hoàn thành sẽ hiển thị ở đây'}
+              {t('bookings.noBookingsDesc')}
             </p>
             {tab === 'upcoming' && (
               <Button variant="hero" asChild>
-                <Link to="/explore">Tìm trạm sạc</Link>
+                <Link to="/explore">{t('dashboard.findStation')}</Link>
               </Button>
             )}
           </div>
@@ -238,7 +238,7 @@ export default function MyBookings() {
                       ) : (
                         <>
                           <XCircle className="w-4 h-4" />
-                          Hủy
+                          {t('bookings.cancelBooking')}
                         </>
                       )}
                     </Button>

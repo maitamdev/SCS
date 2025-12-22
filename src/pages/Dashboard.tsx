@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Zap,
   MapPin,
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { bookings, loading: bookingsLoading } = useBookings();
   const { favorites, loading: favoritesLoading } = useFavorites();
+  const { t } = useLanguage();
 
   // Filter upcoming bookings
   const upcomingBookings = bookings
@@ -37,10 +39,10 @@ export default function Dashboard() {
   }).length;
 
   const stats = [
-    { label: 'Lượt sạc tháng này', value: thisMonthBookings.toString(), icon: Zap, change: null },
-    { label: 'Trạm yêu thích', value: favorites.length.toString(), icon: Heart, change: null },
-    { label: 'AI gợi ý còn lại', value: '180/200', icon: Sparkles, change: null },
-    { label: 'Booking còn lại', value: `${20 - bookings.filter(b => b.status === 'confirmed').length}/20`, icon: Calendar, change: null },
+    { label: t('subscription.bookingsCount'), value: thisMonthBookings.toString(), icon: Zap, change: null },
+    { label: t('favorites.title'), value: favorites.length.toString(), icon: Heart, change: null },
+    { label: t('subscription.aiCalls'), value: '180/200', icon: Sparkles, change: null },
+    { label: t('subscription.bookingsCount'), value: `${20 - bookings.filter(b => b.status === 'confirmed').length}/20`, icon: Calendar, change: null },
   ];
 
   const formatBookingTime = (startTime: string, endTime: string) => {
@@ -69,14 +71,14 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-              Xin chào, {user?.profile?.full_name || 'Bạn'}
+              {t('dashboard.welcome')}, {user?.profile?.full_name || 'Bạn'}
             </h1>
-            <p className="text-muted-foreground">Quản lý hoạt động sạc xe của bạn</p>
+            <p className="text-muted-foreground">{t('dashboard.overview')}</p>
           </div>
           <Button variant="hero" asChild>
             <Link to="/explore">
               <MapPin className="w-4 h-4" />
-              Tìm trạm sạc
+              {t('dashboard.findStation')}
             </Link>
           </Button>
         </div>
@@ -117,10 +119,10 @@ export default function Dashboard() {
         {/* Recent Bookings */}
         <div className="card-premium p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Lịch đặt chỗ sắp tới</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('dashboard.recentBookings')}</h2>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/dashboard/bookings">
-                Xem tất cả
+                {t('common.viewAll')}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
@@ -133,9 +135,9 @@ export default function Dashboard() {
           ) : upcomingBookings.length === 0 ? (
             <div className="text-center py-8">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">Chưa có lịch đặt chỗ nào</p>
+              <p className="text-muted-foreground">{t('dashboard.noBookings')}</p>
               <Button variant="outline" size="sm" className="mt-3" asChild>
-                <Link to="/explore">Tìm trạm sạc</Link>
+                <Link to="/explore">{t('dashboard.findStation')}</Link>
               </Button>
             </div>
           ) : (
@@ -176,22 +178,22 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-3 gap-4">
           <Link to="/explore" className="card-premium p-6 group">
             <MapPin className="w-8 h-8 text-primary mb-3" />
-            <h3 className="font-semibold text-foreground mb-1">Tìm trạm sạc</h3>
-            <p className="text-sm text-foreground/70">Khám phá trạm sạc gần bạn</p>
+            <h3 className="font-semibold text-foreground mb-1">{t('dashboard.findStation')}</h3>
+            <p className="text-sm text-foreground/70">{t('explore.subtitle')}</p>
             <ArrowRight className="w-5 h-5 text-primary mt-3 group-hover:translate-x-1 transition-transform" />
           </Link>
           
           <Link to="/dashboard/vehicle" className="card-premium p-6 group">
             <Zap className="w-8 h-8 text-primary mb-3" />
-            <h3 className="font-semibold text-foreground mb-1">Cập nhật xe</h3>
-            <p className="text-sm text-foreground/70">Thêm hoặc chỉnh sửa thông tin xe</p>
+            <h3 className="font-semibold text-foreground mb-1">{t('dashboard.myVehicle')}</h3>
+            <p className="text-sm text-foreground/70">{t('vehicle.subtitle')}</p>
             <ArrowRight className="w-5 h-5 text-primary mt-3 group-hover:translate-x-1 transition-transform" />
           </Link>
           
           <Link to="/pricing" className="card-premium p-6 group">
             <Sparkles className="w-8 h-8 text-primary mb-3" />
-            <h3 className="font-semibold text-foreground mb-1">Nâng cấp gói</h3>
-            <p className="text-sm text-foreground/70">Mở khóa thêm tính năng AI</p>
+            <h3 className="font-semibold text-foreground mb-1">{t('subscription.upgrade')}</h3>
+            <p className="text-sm text-foreground/70">{t('subscription.upgradeDesc')}</p>
             <ArrowRight className="w-5 h-5 text-primary mt-3 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

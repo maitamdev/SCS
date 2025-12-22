@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Check, 
   X, 
@@ -19,15 +19,20 @@ import { cn } from '@/lib/utils';
 
 type PlanAudience = 'driver' | 'operator';
 
+interface PlanFeature {
+  key: string;
+  included: boolean;
+}
+
 interface Plan {
   code: string;
   name: string;
   price: string;
-  period: string;
-  description: string;
-  features: { text: string; included: boolean }[];
+  periodKey: string;
+  descKey: string;
+  features: PlanFeature[];
   highlighted?: boolean;
-  cta: string;
+  ctaKey: string;
 }
 
 const driverPlans: Plan[] = [
@@ -35,61 +40,61 @@ const driverPlans: Plan[] = [
     code: 'driver_free',
     name: 'Free',
     price: '0đ',
-    period: 'mãi mãi',
-    description: 'Cho người dùng mới bắt đầu',
-    cta: 'Bắt đầu miễn phí',
+    periodKey: 'pricing.forever',
+    descKey: 'pricing.driver.free.desc',
+    ctaKey: 'pricing.driver.free.cta',
     features: [
-      { text: 'Xem bản đồ và tìm trạm', included: true },
-      { text: 'Bộ lọc cơ bản', included: true },
-      { text: 'AI gợi ý Top 3 trạm', included: true },
-      { text: '20 lượt AI/ngày', included: true },
-      { text: '2 booking/tháng', included: true },
-      { text: 'Dự đoán tổng quan', included: true },
-      { text: '5 trạm yêu thích', included: true },
-      { text: 'Chart dự đoán theo giờ', included: false },
-      { text: 'Gợi ý giờ vàng', included: false },
-      { text: 'AI giải thích chi tiết', included: false },
+      { key: 'pricing.feature.viewMap', included: true },
+      { key: 'pricing.feature.basicFilter', included: true },
+      { key: 'pricing.feature.aiTop3', included: true },
+      { key: 'pricing.feature.ai20', included: true },
+      { key: 'pricing.feature.booking2', included: true },
+      { key: 'pricing.feature.overviewPrediction', included: true },
+      { key: 'pricing.feature.fav5', included: true },
+      { key: 'pricing.feature.hourlyChart', included: false },
+      { key: 'pricing.feature.goldenHour', included: false },
+      { key: 'pricing.feature.aiExplain', included: false },
     ],
   },
   {
     code: 'driver_plus',
     name: 'Plus',
     price: '99.000đ',
-    period: '/tháng',
-    description: 'Cho người dùng thường xuyên',
-    cta: 'Nâng cấp Plus',
+    periodKey: 'pricing.perMonth',
+    descKey: 'pricing.driver.plus.desc',
+    ctaKey: 'pricing.driver.plus.cta',
     highlighted: true,
     features: [
-      { text: 'Tất cả tính năng Free', included: true },
-      { text: 'AI gợi ý Top 10 trạm', included: true },
-      { text: '200 lượt AI/ngày', included: true },
-      { text: '20 booking/tháng', included: true },
-      { text: 'Chart dự đoán theo giờ', included: true },
-      { text: 'Gợi ý giờ vàng', included: true },
-      { text: 'Yêu thích không giới hạn', included: true },
-      { text: 'Ưu tiên giữ chỗ', included: true },
-      { text: 'AI giải thích chi tiết', included: false },
-      { text: 'Analytics cá nhân', included: false },
+      { key: 'pricing.feature.allFree', included: true },
+      { key: 'pricing.feature.aiTop10', included: true },
+      { key: 'pricing.feature.ai200', included: true },
+      { key: 'pricing.feature.booking20', included: true },
+      { key: 'pricing.feature.hourlyChart', included: true },
+      { key: 'pricing.feature.goldenHour', included: true },
+      { key: 'pricing.feature.unlimitedFav', included: true },
+      { key: 'pricing.feature.priorityBooking', included: true },
+      { key: 'pricing.feature.aiExplain', included: false },
+      { key: 'pricing.feature.personalAnalytics', included: false },
     ],
   },
   {
     code: 'driver_pro',
     name: 'Pro',
     price: '249.000đ',
-    period: '/tháng',
-    description: 'Cho người dùng chuyên nghiệp',
-    cta: 'Nâng cấp Pro',
+    periodKey: 'pricing.perMonth',
+    descKey: 'pricing.driver.pro.desc',
+    ctaKey: 'pricing.driver.pro.cta',
     features: [
-      { text: 'Tất cả tính năng Plus', included: true },
-      { text: 'AI không giới hạn', included: true },
-      { text: 'Booking không giới hạn', included: true },
-      { text: 'AI giải thích tất cả factors', included: true },
-      { text: 'Heatmap giờ cao điểm', included: true },
-      { text: 'Analytics lịch sử sạc', included: true },
-      { text: 'Export dữ liệu', included: true },
-      { text: 'Hỗ trợ ưu tiên', included: true },
-      { text: 'Early access tính năng mới', included: true },
-      { text: 'Badge Pro trên hồ sơ', included: true },
+      { key: 'pricing.feature.allPlus', included: true },
+      { key: 'pricing.feature.unlimitedAI', included: true },
+      { key: 'pricing.feature.unlimitedBooking', included: true },
+      { key: 'pricing.feature.aiAllFactors', included: true },
+      { key: 'pricing.feature.heatmap', included: true },
+      { key: 'pricing.feature.historyAnalytics', included: true },
+      { key: 'pricing.feature.exportData', included: true },
+      { key: 'pricing.feature.prioritySupport', included: true },
+      { key: 'pricing.feature.earlyAccess', included: true },
+      { key: 'pricing.feature.proBadge', included: true },
     ],
   },
 ];
@@ -99,60 +104,68 @@ const operatorPlans: Plan[] = [
     code: 'operator_free',
     name: 'Free',
     price: '0đ',
-    period: 'mãi mãi',
-    description: 'Cho chủ trạm nhỏ',
-    cta: 'Bắt đầu miễn phí',
+    periodKey: 'pricing.forever',
+    descKey: 'pricing.operator.free.desc',
+    ctaKey: 'pricing.operator.free.cta',
     features: [
-      { text: 'Tạo 1 trạm sạc', included: true },
-      { text: 'Tối đa 4 cổng sạc', included: true },
-      { text: 'Quản lý booking cơ bản', included: true },
-      { text: 'Thông báo booking mới', included: true },
-      { text: 'Báo cáo nâng cao', included: false },
-      { text: 'Export dữ liệu', included: false },
-      { text: 'API access', included: false },
+      { key: 'pricing.feature.create1Station', included: true },
+      { key: 'pricing.feature.max4Chargers', included: true },
+      { key: 'pricing.feature.basicBookingMgmt', included: true },
+      { key: 'pricing.feature.newBookingNotif', included: true },
+      { key: 'pricing.feature.advancedReport', included: false },
+      { key: 'pricing.feature.exportData', included: false },
+      { key: 'pricing.feature.apiAccess', included: false },
     ],
   },
   {
     code: 'operator_business',
     name: 'Business',
     price: '999.000đ',
-    period: '/tháng',
-    description: 'Cho doanh nghiệp vừa',
-    cta: 'Nâng cấp Business',
+    periodKey: 'pricing.perMonth',
+    descKey: 'pricing.operator.business.desc',
+    ctaKey: 'pricing.operator.business.cta',
     highlighted: true,
     features: [
-      { text: 'Tạo 10 trạm sạc', included: true },
-      { text: 'Tối đa 100 cổng sạc', included: true },
-      { text: 'Quản lý booking nâng cao', included: true },
-      { text: 'Báo cáo doanh thu', included: true },
-      { text: 'Thống kê peak hours', included: true },
-      { text: 'Export CSV', included: true },
-      { text: 'Hỗ trợ email ưu tiên', included: true },
-      { text: 'API access', included: false },
+      { key: 'pricing.feature.create10Stations', included: true },
+      { key: 'pricing.feature.max100Chargers', included: true },
+      { key: 'pricing.feature.advancedBookingMgmt', included: true },
+      { key: 'pricing.feature.revenueReport', included: true },
+      { key: 'pricing.feature.peakHoursStats', included: true },
+      { key: 'pricing.feature.exportCSV', included: true },
+      { key: 'pricing.feature.priorityEmail', included: true },
+      { key: 'pricing.feature.apiAccess', included: false },
     ],
   },
   {
     code: 'operator_enterprise',
     name: 'Enterprise',
-    price: 'Liên hệ',
-    period: '',
-    description: 'Cho doanh nghiệp lớn',
-    cta: 'Liên hệ sales',
+    price: '',
+    periodKey: 'pricing.contact',
+    descKey: 'pricing.operator.enterprise.desc',
+    ctaKey: 'pricing.operator.enterprise.cta',
     features: [
-      { text: 'Trạm & cổng không giới hạn', included: true },
-      { text: 'Advanced analytics', included: true },
-      { text: 'Audit logs', included: true },
-      { text: 'API access đầy đủ', included: true },
-      { text: 'Webhook integrations', included: true },
-      { text: 'White-label option', included: true },
-      { text: 'SLA 99.9%', included: true },
-      { text: 'Account manager riêng', included: true },
+      { key: 'pricing.feature.unlimitedStations', included: true },
+      { key: 'pricing.feature.advancedAnalytics', included: true },
+      { key: 'pricing.feature.auditLogs', included: true },
+      { key: 'pricing.feature.fullApiAccess', included: true },
+      { key: 'pricing.feature.webhooks', included: true },
+      { key: 'pricing.feature.whiteLabel', included: true },
+      { key: 'pricing.feature.sla', included: true },
+      { key: 'pricing.feature.accountManager', included: true },
     ],
   },
 ];
 
+const faqKeys = [
+  { qKey: 'pricing.faq.cancel.q', aKey: 'pricing.faq.cancel.a' },
+  { qKey: 'pricing.faq.upgrade.q', aKey: 'pricing.faq.upgrade.a' },
+  { qKey: 'pricing.faq.payment.q', aKey: 'pricing.faq.payment.a' },
+  { qKey: 'pricing.faq.freeLimit.q', aKey: 'pricing.faq.freeLimit.a' },
+];
+
 export default function Pricing() {
   const [audience, setAudience] = useState<PlanAudience>('driver');
+  const { t } = useLanguage();
   const plans = audience === 'driver' ? driverPlans : operatorPlans;
 
   return (
@@ -168,10 +181,10 @@ export default function Pricing() {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Gói dịch vụ <span className="gradient-text">linh hoạt</span>
+              {t('pricing.title')} <span className="gradient-text">{t('common.free')}</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Chọn gói phù hợp với nhu cầu của bạn. Nâng cấp hoặc hạ cấp bất cứ lúc nào.
+              {t('pricing.subtitle')}
             </p>
 
             {/* Audience Toggle */}
@@ -186,7 +199,7 @@ export default function Pricing() {
                 )}
               >
                 <Users className="w-4 h-4" />
-                Cho tài xế
+                {t('pricing.forDrivers')}
               </button>
               <button
                 onClick={() => setAudience('operator')}
@@ -198,7 +211,7 @@ export default function Pricing() {
                 )}
               >
                 <Building2 className="w-4 h-4" />
-                Cho chủ trạm
+                {t('pricing.forOperators')}
               </button>
             </div>
           </motion.div>
@@ -218,7 +231,7 @@ export default function Pricing() {
               >
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                    Phổ biến nhất
+                    {t('pricing.popular')}
                   </div>
                 )}
 
@@ -233,11 +246,11 @@ export default function Pricing() {
                     )}
                   </div>
                   <h3 className="text-xl font-bold mb-1 text-foreground">{plan.name}</h3>
-                  <p className="text-sm text-foreground/60 mb-4">{plan.description}</p>
+                  <p className="text-sm text-foreground/60 mb-4">{t(plan.descKey as keyof typeof t)}</p>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                    {plan.period && (
-                      <span className="text-foreground/60">{plan.period}</span>
+                    <span className="text-4xl font-bold text-foreground">{plan.price || t(plan.periodKey as keyof typeof t)}</span>
+                    {plan.price && (
+                      <span className="text-foreground/60">{t(plan.periodKey as keyof typeof t)}</span>
                     )}
                   </div>
                 </div>
@@ -256,7 +269,7 @@ export default function Pricing() {
                       ) : (
                         <X className="w-4 h-4 text-muted-foreground/50 flex-shrink-0" />
                       )}
-                      <span className={feature.included ? 'text-foreground' : ''}>{feature.text}</span>
+                      <span className={feature.included ? 'text-foreground' : ''}>{t(feature.key as keyof typeof t)}</span>
                     </div>
                   ))}
                 </div>
@@ -265,7 +278,7 @@ export default function Pricing() {
                   variant={plan.highlighted ? 'hero' : 'outline'} 
                   className="w-full"
                 >
-                  {plan.cta}
+                  {t(plan.ctaKey as keyof typeof t)}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </motion.div>
@@ -279,32 +292,15 @@ export default function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-center mb-8">Câu hỏi thường gặp</h2>
+            <h2 className="text-2xl font-bold text-center mb-8">{t('pricing.faq')}</h2>
             <div className="space-y-4">
-              {[
-                {
-                  q: 'Tôi có thể hủy gói bất cứ lúc nào không?',
-                  a: 'Có, bạn có thể hủy gói bất cứ lúc nào. Gói sẽ còn hiệu lực đến hết kỳ thanh toán hiện tại.',
-                },
-                {
-                  q: 'Có thể nâng/hạ cấp gói không?',
-                  a: 'Có, bạn có thể thay đổi gói bất cứ lúc nào. Phần chênh lệch sẽ được tính theo ngày sử dụng.',
-                },
-                {
-                  q: 'Thanh toán bằng hình thức nào?',
-                  a: 'Chúng tôi hỗ trợ thanh toán qua thẻ Visa/Mastercard, chuyển khoản ngân hàng, và các ví điện tử phổ biến.',
-                },
-                {
-                  q: 'Gói Free có giới hạn thời gian không?',
-                  a: 'Không, gói Free hoàn toàn miễn phí và không giới hạn thời gian sử dụng.',
-                },
-              ].map((faq, i) => (
+              {faqKeys.map((faq, i) => (
                 <div key={i} className="card-premium p-4">
                   <div className="flex items-start gap-3">
                     <HelpCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium mb-1 text-foreground">{faq.q}</p>
-                      <p className="text-sm text-foreground/70">{faq.a}</p>
+                      <p className="font-medium mb-1 text-foreground">{t(faq.qKey as keyof typeof t)}</p>
+                      <p className="text-sm text-foreground/70">{t(faq.aKey as keyof typeof t)}</p>
                     </div>
                   </div>
                 </div>
@@ -320,10 +316,10 @@ export default function Pricing() {
             viewport={{ once: true }}
           >
             <p className="text-muted-foreground mb-4">
-              Cần tư vấn thêm? Liên hệ với chúng tôi
+              {t('pricing.needHelp')}
             </p>
             <Button variant="outline" size="lg">
-              Liên hệ hỗ trợ
+              {t('pricing.contactSupport')}
             </Button>
           </motion.div>
         </div>

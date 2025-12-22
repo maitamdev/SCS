@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationKey } from '@/lib/translations';
 import { 
   Menu, 
   X,
@@ -10,16 +12,17 @@ import {
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-const navLinks = [
-  { href: '/', label: 'Trang chủ' },
-  { href: '/explore', label: 'Khám phá' },
-  { href: '/pricing', label: 'Bảng giá' },
+const navLinks: { href: string; labelKey: TranslationKey }[] = [
+  { href: '/', labelKey: 'nav.home' },
+  { href: '/explore', labelKey: 'nav.explore' },
+  { href: '/pricing', labelKey: 'nav.pricing' },
 ];
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { t } = useLanguage();
 
   const isHomePage = location.pathname === '/';
 
@@ -69,7 +72,7 @@ export function Header() {
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               );
             })}
@@ -81,13 +84,13 @@ export function Header() {
           <Button variant="ghost" size="sm" asChild>
             <Link to="/auth">
               <LogIn className="w-4 h-4" />
-              Đăng nhập
+              {t('auth.login')}
             </Link>
           </Button>
           <Button variant="hero" size="sm" asChild>
             <Link to="/explore">
               <MapPin className="w-4 h-4" />
-              Tìm trạm sạc
+              {t('explore.title')}
             </Link>
           </Button>
         </div>
@@ -128,7 +131,7 @@ export function Header() {
                   )}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               );
             })}
@@ -136,13 +139,13 @@ export function Header() {
               <Button variant="outline" className="w-full" asChild>
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                   <LogIn className="w-4 h-4" />
-                  Đăng nhập
+                  {t('auth.login')}
                 </Link>
               </Button>
               <Button variant="hero" className="w-full" asChild>
                 <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>
                   <MapPin className="w-4 h-4" />
-                  Tìm trạm sạc
+                  {t('explore.title')}
                 </Link>
               </Button>
             </div>

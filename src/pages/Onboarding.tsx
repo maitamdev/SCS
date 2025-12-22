@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   User, 
   Phone, 
@@ -19,6 +20,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const { user, updateProfile } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const [loading, setLoading] = useState(false);
   
@@ -31,8 +33,8 @@ export default function Onboarding() {
   const handleSubmit = async () => {
     if (!profileData.full_name || !profileData.phone) {
       toast({
-        title: 'Thiếu thông tin',
-        description: 'Vui lòng nhập họ tên và số điện thoại',
+        title: t('common.error'),
+        description: t('common.error'),
         variant: 'destructive',
       });
       return;
@@ -46,15 +48,15 @@ export default function Onboarding() {
       });
       
       toast({
-        title: 'Hoàn tất!',
-        description: 'Chào mừng bạn đến với SCS GO',
+        title: t('common.success'),
+        description: t('onboarding.welcome'),
       });
       
       navigate('/dashboard');
     } catch (error) {
       toast({
-        title: 'Lỗi',
-        description: 'Không thể lưu thông tin. Vui lòng thử lại.',
+        title: t('common.error'),
+        description: t('common.error'),
         variant: 'destructive',
       });
     } finally {
@@ -101,13 +103,13 @@ export default function Onboarding() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Chào mừng bạn!</h1>
-              <p className="text-muted-foreground">Hoàn tất thông tin để bắt đầu sử dụng</p>
+              <h1 className="text-2xl font-bold mb-2">{t('onboarding.welcome')}</h1>
+              <p className="text-muted-foreground">{t('onboarding.welcomeDesc')}</p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Họ và tên *</Label>
+                <Label htmlFor="name">{t('settings.fullName')} *</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -121,7 +123,7 @@ export default function Onboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Số điện thoại *</Label>
+                <Label htmlFor="phone">{t('settings.phone')} *</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -136,7 +138,7 @@ export default function Onboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Địa chỉ (tùy chọn)</Label>
+                <Label htmlFor="address">{t('settings.address')}</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -153,7 +155,7 @@ export default function Onboarding() {
             {/* Tip */}
             <div className="p-3 bg-primary/5 rounded-xl border border-primary/20">
               <p className="text-sm text-muted-foreground">
-                💡 Bạn có thể kết nối xe điện sau trong phần <strong>Xe của tôi</strong> để AI gợi ý trạm sạc phù hợp hơn.
+                💡 {t('onboarding.tip')}
               </p>
             </div>
           </motion.div>
@@ -161,19 +163,19 @@ export default function Onboarding() {
           {/* Actions */}
           <div className="flex items-center justify-between mt-6 pt-6 border-t border-border">
             <Button variant="ghost" onClick={handleSkip} disabled={loading}>
-              Bỏ qua
+              {t('common.skip')}
             </Button>
             
             <Button variant="hero" onClick={handleSubmit} disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Đang lưu...
+                  {t('common.loading')}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Hoàn tất
+                  {t('common.done')}
                 </>
               )}
             </Button>

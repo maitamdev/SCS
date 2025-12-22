@@ -7,6 +7,7 @@ import { useStation } from '@/hooks/useStations';
 import { useBookings } from '@/hooks/useBookings';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Charger } from '@/types';
 import { CONNECTOR_LABELS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -32,96 +33,97 @@ import {
 
 type BookingStep = 'charger' | 'time' | 'services' | 'payment' | 'confirm';
 
-const steps: { id: BookingStep; label: string; icon: React.ElementType }[] = [
-  { id: 'charger', label: 'Chọn cổng', icon: Zap },
-  { id: 'time', label: 'Chọn giờ', icon: Clock },
-  { id: 'services', label: 'Dịch vụ', icon: Coffee },
-  { id: 'payment', label: 'Thanh toán', icon: CreditCard },
-  { id: 'confirm', label: 'Xác nhận', icon: Check },
-];
-
-// Additional services
-const additionalServices = [
-  {
-    id: 'coffee',
-    name: 'Cà phê & Đồ uống',
-    description: 'Thưởng thức cà phê trong khi chờ sạc',
-    icon: Coffee,
-    items: [
-      { id: 'coffee-1', name: 'Cà phê đen', price: 25000 },
-      { id: 'coffee-2', name: 'Cà phê sữa', price: 30000 },
-      { id: 'coffee-3', name: 'Trà đào', price: 35000 },
-      { id: 'coffee-4', name: 'Nước ép cam', price: 40000 },
-    ],
-  },
-  {
-    id: 'snacks',
-    name: 'Đồ ăn nhẹ',
-    description: 'Bánh ngọt và snacks',
-    icon: ShoppingBag,
-    items: [
-      { id: 'snack-1', name: 'Bánh croissant', price: 35000 },
-      { id: 'snack-2', name: 'Sandwich', price: 45000 },
-      { id: 'snack-3', name: 'Salad trộn', price: 55000 },
-    ],
-  },
-  {
-    id: 'carwash',
-    name: 'Rửa xe',
-    description: 'Rửa xe trong khi sạc',
-    icon: Car,
-    items: [
-      { id: 'wash-1', name: 'Rửa xe cơ bản', price: 50000 },
-      { id: 'wash-2', name: 'Rửa xe + Hút bụi', price: 80000 },
-      { id: 'wash-3', name: 'Rửa xe VIP', price: 150000 },
-    ],
-  },
-  {
-    id: 'lounge',
-    name: 'Phòng chờ VIP',
-    description: 'Không gian riêng tư, WiFi tốc độ cao',
-    icon: Wifi,
-    items: [
-      { id: 'lounge-1', name: 'Phòng chờ 30 phút', price: 30000 },
-      { id: 'lounge-2', name: 'Phòng chờ 60 phút', price: 50000 },
-    ],
-  },
-];
-
-// Time slots
-const generateTimeSlots = () => {
-  const slots = [];
-  const now = new Date();
-  const currentHour = now.getHours();
-  
-  for (let day = 0; day < 3; day++) {
-    const date = new Date();
-    date.setDate(date.getDate() + day);
-    
-    const startHour = day === 0 ? currentHour + 1 : 6;
-    
-    for (let hour = startHour; hour < 23; hour++) {
-      for (let min = 0; min < 60; min += 30) {
-        const slotDate = new Date(date);
-        slotDate.setHours(hour, min, 0, 0);
-        
-        slots.push({
-          date: slotDate,
-          label: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
-          dayLabel: day === 0 ? 'Hôm nay' : day === 1 ? 'Ngày mai' : slotDate.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' }),
-          available: Math.random() > 0.2,
-          peak: hour >= 17 && hour <= 20,
-        });
-      }
-    }
-  }
-  return slots;
-};
-
 export default function BookingPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
+  const steps: { id: BookingStep; label: string; icon: React.ElementType }[] = [
+    { id: 'charger', label: t('booking.selectPort'), icon: Zap },
+    { id: 'time', label: t('booking.selectHour'), icon: Clock },
+    { id: 'services', label: t('booking.services'), icon: Coffee },
+    { id: 'payment', label: t('booking.payment'), icon: CreditCard },
+    { id: 'confirm', label: t('booking.confirm'), icon: Check },
+  ];
+
+  // Additional services
+  const additionalServices = [
+    {
+      id: 'coffee',
+      name: t('booking.service.coffee'),
+      description: t('booking.service.coffeeDesc'),
+      icon: Coffee,
+      items: [
+        { id: 'coffee-1', name: t('booking.service.coffeeBlack'), price: 25000 },
+        { id: 'coffee-2', name: t('booking.service.coffeeMilk'), price: 30000 },
+        { id: 'coffee-3', name: t('booking.service.peachTea'), price: 35000 },
+        { id: 'coffee-4', name: t('booking.service.orangeJuice'), price: 40000 },
+      ],
+    },
+    {
+      id: 'snacks',
+      name: t('booking.service.snacks'),
+      description: t('booking.service.snacksDesc'),
+      icon: ShoppingBag,
+      items: [
+        { id: 'snack-1', name: t('booking.service.croissant'), price: 35000 },
+        { id: 'snack-2', name: t('booking.service.sandwich'), price: 45000 },
+        { id: 'snack-3', name: t('booking.service.salad'), price: 55000 },
+      ],
+    },
+    {
+      id: 'carwash',
+      name: t('booking.service.carwash'),
+      description: t('booking.service.carwashDesc'),
+      icon: Car,
+      items: [
+        { id: 'wash-1', name: t('booking.service.washBasic'), price: 50000 },
+        { id: 'wash-2', name: t('booking.service.washVacuum'), price: 80000 },
+        { id: 'wash-3', name: t('booking.service.washVIP'), price: 150000 },
+      ],
+    },
+    {
+      id: 'lounge',
+      name: t('booking.service.lounge'),
+      description: t('booking.service.loungeDesc'),
+      icon: Wifi,
+      items: [
+        { id: 'lounge-1', name: t('booking.service.lounge30'), price: 30000 },
+        { id: 'lounge-2', name: t('booking.service.lounge60'), price: 50000 },
+      ],
+    },
+  ];
+
+  // Time slots
+  const generateTimeSlots = () => {
+    const slots = [];
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    for (let day = 0; day < 3; day++) {
+      const date = new Date();
+      date.setDate(date.getDate() + day);
+      
+      const startHour = day === 0 ? currentHour + 1 : 6;
+      
+      for (let hour = startHour; hour < 23; hour++) {
+        for (let min = 0; min < 60; min += 30) {
+          const slotDate = new Date(date);
+          slotDate.setHours(hour, min, 0, 0);
+          
+          slots.push({
+            date: slotDate,
+            label: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
+            dayLabel: day === 0 ? t('booking.today') : day === 1 ? t('booking.tomorrow') : slotDate.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' }),
+            available: Math.random() > 0.2,
+            peak: hour >= 17 && hour <= 20,
+          });
+        }
+      }
+    }
+    return slots;
+  };
+
   const [currentStep, setCurrentStep] = useState<BookingStep>('charger');
   const [selectedCharger, setSelectedCharger] = useState<Charger | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
@@ -222,7 +224,7 @@ export default function BookingPage() {
     
     if (error) {
       toast({
-        title: 'Lỗi đặt chỗ',
+        title: t('common.error'),
         description: error,
         variant: 'destructive',
       });
@@ -242,13 +244,13 @@ export default function BookingPage() {
   if (!station) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p>Không tìm thấy trạm sạc</p>
+        <p>{t('booking.notFound')}</p>
       </div>
     );
   }
 
   if (bookingComplete) {
-    return <BookingSuccess station={station} selectedCharger={selectedCharger} selectedTime={selectedTime} duration={duration} totalPrice={totalPrice} />;
+    return <BookingSuccess station={station} selectedCharger={selectedCharger} selectedTime={selectedTime} duration={duration} totalPrice={totalPrice} t={t} />;
   }
 
   const currentStepIndex = steps.findIndex(s => s.id === currentStep);
@@ -263,7 +265,7 @@ export default function BookingPage() {
           <Button variant="ghost" size="sm" className="mb-4" asChild>
             <Link to={`/station/${id}`}>
               <ChevronLeft className="w-4 h-4" />
-              Quay lại
+              {t('common.back')}
             </Link>
           </Button>
 
@@ -281,7 +283,7 @@ export default function BookingPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-foreground/60">Tổng tạm tính</p>
+                <p className="text-sm text-foreground/60">{t('booking.estimatedTotal')}</p>
                 <p className="text-xl font-bold text-primary">{totalPrice.toLocaleString()}đ</p>
               </div>
             </div>
@@ -337,8 +339,8 @@ export default function BookingPage() {
               {currentStep === 'charger' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2">Chọn cổng sạc</h2>
-                    <p className="text-foreground/60">Chọn loại cổng sạc phù hợp với xe của bạn</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{t('booking.selectCharger')}</h2>
+                    <p className="text-foreground/60">{t('booking.selectChargerDesc')}</p>
                   </div>
 
                   {/* Charger grid - Cinema style */}
@@ -347,19 +349,19 @@ export default function BookingPage() {
                     <div className="flex flex-wrap gap-4 mb-6 pb-4 border-b border-border/40">
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded bg-success" />
-                        <span className="text-sm text-foreground/70">Trống</span>
+                        <span className="text-sm text-foreground/70">{t('booking.empty')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded bg-warning" />
-                        <span className="text-sm text-foreground/70">Đang sử dụng</span>
+                        <span className="text-sm text-foreground/70">{t('booking.inUse')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded bg-destructive" />
-                        <span className="text-sm text-foreground/70">Bảo trì</span>
+                        <span className="text-sm text-foreground/70">{t('booking.maintenance')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded ring-2 ring-primary bg-primary/20" />
-                        <span className="text-sm text-foreground/70">Đang chọn</span>
+                        <span className="text-sm text-foreground/70">{t('booking.selecting')}</span>
                       </div>
                     </div>
 
@@ -369,7 +371,7 @@ export default function BookingPage() {
                       <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary rounded-full">
                           <Car className="w-4 h-4" />
-                          <span className="text-sm font-medium">Lối vào trạm sạc</span>
+                          <span className="text-sm font-medium">{t('booking.stationEntrance')}</span>
                         </div>
                       </div>
 
@@ -441,7 +443,7 @@ export default function BookingPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-semibold text-foreground">Cổng đã chọn</p>
+                            <p className="font-semibold text-foreground">{t('booking.selectedPort')}</p>
                             <p className="text-sm text-foreground/70">
                               {CONNECTOR_LABELS[selectedCharger.connector_type]} • {selectedCharger.power_kw} kW
                             </p>
@@ -463,8 +465,8 @@ export default function BookingPage() {
               {currentStep === 'time' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2">Chọn thời gian</h2>
-                    <p className="text-foreground/60">Chọn ngày và giờ bạn muốn sạc</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{t('booking.selectTime')}</h2>
+                    <p className="text-foreground/60">{t('booking.selectTimeDesc')}</p>
                   </div>
 
                   <div className="grid lg:grid-cols-3 gap-6">
@@ -472,7 +474,7 @@ export default function BookingPage() {
                     <div className="card-premium p-6">
                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                         <Timer className="w-5 h-5 text-primary" />
-                        Thời lượng sạc
+                        {t('booking.chargingDuration')}
                       </h3>
                       <div className="space-y-3">
                         {[30, 60, 90, 120].map(mins => (
@@ -487,7 +489,7 @@ export default function BookingPage() {
                             )}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-medium text-foreground">{mins} phút</span>
+                              <span className="font-medium text-foreground">{mins} {t('booking.minutes')}</span>
                               {selectedCharger && (
                                 <span className="text-sm text-primary font-semibold">
                                   ~{((selectedCharger.power_kw * mins) / 60).toFixed(0)} kWh
@@ -543,7 +545,7 @@ export default function BookingPage() {
                             >
                               {slot.label}
                               {slot.peak && slot.available && (
-                                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-warning" title="Giờ cao điểm" />
+                                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-warning" title={t('booking.peakHour')} />
                               )}
                             </button>
                           );
@@ -554,7 +556,7 @@ export default function BookingPage() {
                       <div className="flex gap-4 mt-4 pt-4 border-t border-border/40">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-warning" />
-                          <span className="text-xs text-foreground/60">Giờ cao điểm</span>
+                          <span className="text-xs text-foreground/60">{t('booking.peakHour')}</span>
                         </div>
                       </div>
                     </div>
@@ -576,7 +578,7 @@ export default function BookingPage() {
                             </p>
                             <p className="text-sm text-foreground/70">
                               {selectedTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - {new Date(selectedTime.getTime() + duration * 60000).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                              {' '}({duration} phút)
+                              {' '}({duration} {t('booking.minutes')})
                             </p>
                           </div>
                         </div>
@@ -590,8 +592,8 @@ export default function BookingPage() {
               {currentStep === 'services' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2">Dịch vụ bổ sung</h2>
-                    <p className="text-foreground/60">Tận hưởng thời gian chờ sạc với các dịch vụ tiện ích</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{t('booking.services')}</h2>
+                    <p className="text-foreground/60">{t('booking.servicesDesc')}</p>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
@@ -663,15 +665,15 @@ export default function BookingPage() {
                   <div className="card-premium p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <Gift className="w-5 h-5 text-primary" />
-                      <h3 className="font-semibold text-foreground">Mã giảm giá</h3>
+                      <h3 className="font-semibold text-foreground">{t('booking.promoCode')}</h3>
                     </div>
                     <div className="flex gap-3">
                       <input
                         type="text"
-                        placeholder="Nhập mã giảm giá"
+                        placeholder={t('booking.enterPromo')}
                         className="flex-1 px-4 py-2 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                       />
-                      <Button variant="outline">Áp dụng</Button>
+                      <Button variant="outline">{t('booking.apply')}</Button>
                     </div>
                   </div>
                 </div>
@@ -681,20 +683,20 @@ export default function BookingPage() {
               {currentStep === 'payment' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground mb-2">Thanh toán</h2>
-                    <p className="text-foreground/60">Chọn phương thức thanh toán</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{t('booking.payment.title')}</h2>
+                    <p className="text-foreground/60">{t('booking.payment.selectMethod')}</p>
                   </div>
 
                   <div className="grid lg:grid-cols-2 gap-6">
                     {/* Payment methods */}
                     <div className="space-y-4">
-                      <h3 className="font-semibold text-foreground">Phương thức thanh toán</h3>
+                      <h3 className="font-semibold text-foreground">{t('booking.payment.method')}</h3>
                       
                       {[
-                        { id: 'card', name: 'Thẻ tín dụng/Ghi nợ', icon: CreditCard, desc: 'Visa, Mastercard, JCB' },
-                        { id: 'momo', name: 'Ví MoMo', icon: Sparkles, desc: 'Thanh toán qua ví MoMo' },
-                        { id: 'vnpay', name: 'VNPay', icon: CreditCard, desc: 'QR Pay, Thẻ ATM nội địa' },
-                        { id: 'wallet', name: 'Ví SCS GO', icon: Zap, desc: 'Số dư: 500.000đ' },
+                        { id: 'card', name: t('booking.payment.card'), icon: CreditCard, desc: t('booking.payment.cardDesc') },
+                        { id: 'momo', name: t('booking.payment.momo'), icon: Sparkles, desc: t('booking.payment.momoDesc') },
+                        { id: 'vnpay', name: t('booking.payment.vnpay'), icon: CreditCard, desc: t('booking.payment.vnpayDesc') },
+                        { id: 'wallet', name: t('booking.payment.wallet'), icon: Zap, desc: `${t('booking.payment.walletBalance')}: 500.000đ` },
                       ].map(method => (
                         <button
                           key={method.id}
@@ -731,15 +733,15 @@ export default function BookingPage() {
 
                     {/* Order summary */}
                     <div className="card-premium p-6">
-                      <h3 className="font-semibold text-foreground mb-4">Chi tiết đơn hàng</h3>
+                      <h3 className="font-semibold text-foreground mb-4">{t('booking.payment.orderDetails')}</h3>
                       
                       <div className="space-y-3">
                         {/* Charging */}
                         <div className="flex justify-between items-center pb-3 border-b border-border/40">
                           <div>
-                            <p className="font-medium text-foreground">Phí sạc xe</p>
+                            <p className="font-medium text-foreground">{t('booking.payment.chargingFee')}</p>
                             <p className="text-sm text-foreground/60">
-                              {selectedCharger?.connector_type} • {duration} phút
+                              {selectedCharger?.connector_type} • {duration} {t('booking.minutes')}
                             </p>
                           </div>
                           <p className="font-semibold text-foreground">
@@ -750,7 +752,7 @@ export default function BookingPage() {
                         {/* Services */}
                         {selectedServices.length > 0 && (
                           <div className="pb-3 border-b border-border/40">
-                            <p className="font-medium text-foreground mb-2">Dịch vụ bổ sung</p>
+                            <p className="font-medium text-foreground mb-2">{t('booking.payment.additionalServices')}</p>
                             {additionalServices.map(service => 
                               service.items.filter(item => selectedServices.includes(item.id)).map(item => (
                                 <div key={item.id} className="flex justify-between text-sm py-1">
@@ -764,7 +766,7 @@ export default function BookingPage() {
 
                         {/* Total */}
                         <div className="flex justify-between items-center pt-2">
-                          <p className="text-lg font-bold text-foreground">Tổng cộng</p>
+                          <p className="text-lg font-bold text-foreground">{t('booking.total')}</p>
                           <p className="text-2xl font-bold text-primary">{totalPrice.toLocaleString()}đ</p>
                         </div>
                       </div>
@@ -777,8 +779,8 @@ export default function BookingPage() {
               {currentStep === 'confirm' && (
                 <div className="space-y-6">
                   <div className="text-center">
-                    <h2 className="text-2xl font-bold text-foreground mb-2">Xác nhận đặt chỗ</h2>
-                    <p className="text-foreground/60">Kiểm tra lại thông tin trước khi xác nhận</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{t('booking.confirm.title')}</h2>
+                    <p className="text-foreground/60">{t('booking.confirm.review')}</p>
                   </div>
 
                   <div className="max-w-2xl mx-auto">
@@ -797,46 +799,46 @@ export default function BookingPage() {
                       {/* Details grid */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 bg-secondary/50 rounded-xl">
-                          <p className="text-sm text-foreground/60 mb-1">Cổng sạc</p>
+                          <p className="text-sm text-foreground/60 mb-1">{t('booking.confirm.charger')}</p>
                           <p className="font-semibold text-foreground">
                             {selectedCharger && CONNECTOR_LABELS[selectedCharger.connector_type]}
                           </p>
                           <p className="text-sm text-primary">{selectedCharger?.power_kw} kW</p>
                         </div>
                         <div className="p-4 bg-secondary/50 rounded-xl">
-                          <p className="text-sm text-foreground/60 mb-1">Thời gian</p>
+                          <p className="text-sm text-foreground/60 mb-1">{t('booking.confirm.time')}</p>
                           <p className="font-semibold text-foreground">
                             {selectedTime?.toLocaleDateString('vi-VN', { day: 'numeric', month: 'short' })}
                           </p>
                           <p className="text-sm text-primary">
-                            {selectedTime?.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} • {duration} phút
+                            {selectedTime?.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} • {duration} {t('booking.minutes')}
                           </p>
                         </div>
                         <div className="p-4 bg-secondary/50 rounded-xl">
-                          <p className="text-sm text-foreground/60 mb-1">Dịch vụ</p>
+                          <p className="text-sm text-foreground/60 mb-1">{t('booking.confirm.services')}</p>
                           <p className="font-semibold text-foreground">
-                            {selectedServices.length > 0 ? `${selectedServices.length} dịch vụ` : 'Không có'}
+                            {selectedServices.length > 0 ? `${selectedServices.length} ${t('booking.confirm.servicesCount')}` : t('booking.confirm.noServices')}
                           </p>
                         </div>
                         <div className="p-4 bg-secondary/50 rounded-xl">
-                          <p className="text-sm text-foreground/60 mb-1">Thanh toán</p>
+                          <p className="text-sm text-foreground/60 mb-1">{t('booking.confirm.payment')}</p>
                           <p className="font-semibold text-foreground">
-                            {paymentMethod === 'card' ? 'Thẻ tín dụng' : 
-                             paymentMethod === 'momo' ? 'Ví MoMo' :
-                             paymentMethod === 'vnpay' ? 'VNPay' : 'Ví SCS GO'}
+                            {paymentMethod === 'card' ? t('booking.payment.card') : 
+                             paymentMethod === 'momo' ? t('booking.payment.momo') :
+                             paymentMethod === 'vnpay' ? t('booking.payment.vnpay') : t('booking.payment.wallet')}
                           </p>
                         </div>
                       </div>
 
                       {/* Total */}
                       <div className="flex justify-between items-center p-4 bg-primary/10 rounded-xl">
-                        <p className="text-lg font-bold text-foreground">Tổng thanh toán</p>
+                        <p className="text-lg font-bold text-foreground">{t('booking.confirm.totalPayment')}</p>
                         <p className="text-3xl font-bold text-primary">{totalPrice.toLocaleString()}đ</p>
                       </div>
 
                       {/* Terms */}
                       <p className="text-xs text-foreground/50 text-center">
-                        Bằng việc xác nhận, bạn đồng ý với <a href="#" className="text-primary hover:underline">Điều khoản sử dụng</a> và <a href="#" className="text-primary hover:underline">Chính sách hủy</a> của SCS GO.
+                        {t('booking.confirm.terms')} <a href="#" className="text-primary hover:underline">{t('booking.confirm.termsOfUse')}</a> {t('booking.confirm.and')} <a href="#" className="text-primary hover:underline">{t('booking.confirm.cancelPolicy')}</a> {t('booking.confirm.ofSCS')}
                       </p>
                     </div>
                   </div>
@@ -857,11 +859,11 @@ export default function BookingPage() {
             className={currentStepIndex === 0 ? 'invisible' : ''}
           >
             <ChevronLeft className="w-4 h-4" />
-            Quay lại
+            {t('common.back')}
           </Button>
 
           <div className="text-center">
-            <p className="text-sm text-foreground/60">Tổng cộng</p>
+            <p className="text-sm text-foreground/60">{t('booking.total')}</p>
             <p className="text-xl font-bold text-primary">{totalPrice.toLocaleString()}đ</p>
           </div>
 
@@ -873,10 +875,10 @@ export default function BookingPage() {
               disabled={isProcessing}
             >
               {isProcessing ? (
-                <span className="animate-pulse">Đang xử lý...</span>
+                <span className="animate-pulse">{t('booking.processing')}</span>
               ) : (
                 <>
-                  Xác nhận đặt chỗ
+                  {t('booking.confirmBooking')}
                   <Check className="w-4 h-4" />
                 </>
               )}
@@ -888,7 +890,7 @@ export default function BookingPage() {
               onClick={nextStep}
               disabled={!canProceed()}
             >
-              Tiếp tục
+              {t('common.next')}
               <ChevronRight className="w-4 h-4" />
             </Button>
           )}
@@ -905,13 +907,15 @@ function BookingSuccess({
   selectedCharger, 
   selectedTime, 
   duration, 
-  totalPrice 
+  totalPrice,
+  t
 }: { 
   station: { id: string; name: string; address: string }; 
   selectedCharger: Charger | null; 
   selectedTime: Date | null; 
   duration: number; 
   totalPrice: number;
+  t: (key: string) => string;
 }) {
   const bookingCode = `SCS${Date.now().toString().slice(-8)}`;
   
@@ -929,8 +933,8 @@ function BookingSuccess({
             <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-4">
               <Check className="w-10 h-10 text-success" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Đặt chỗ thành công!</h1>
-            <p className="text-foreground/60">Mã đặt chỗ của bạn đã được xác nhận</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t('booking.success.title')}</h1>
+            <p className="text-foreground/60">{t('booking.success.confirmed')}</p>
           </motion.div>
 
           <motion.div
@@ -945,7 +949,7 @@ function BookingSuccess({
                 <QrCode className="w-32 h-32 text-foreground" />
               </div>
               <p className="text-2xl font-mono font-bold text-foreground">{bookingCode}</p>
-              <p className="text-sm text-foreground/60 mt-1">Quét mã QR tại trạm để check-in</p>
+              <p className="text-sm text-foreground/60 mt-1">{t('booking.success.scanQR')}</p>
             </div>
 
             {/* Booking details */}
@@ -964,7 +968,7 @@ function BookingSuccess({
                 <div className="p-4 bg-secondary/50 rounded-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap className="w-4 h-4 text-primary" />
-                    <p className="text-sm text-foreground/60">Cổng sạc</p>
+                    <p className="text-sm text-foreground/60">{t('booking.confirm.charger')}</p>
                   </div>
                   <p className="font-semibold text-foreground">
                     {selectedCharger && CONNECTOR_LABELS[selectedCharger.connector_type]}
@@ -973,19 +977,19 @@ function BookingSuccess({
                 <div className="p-4 bg-secondary/50 rounded-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    <p className="text-sm text-foreground/60">Thời gian</p>
+                    <p className="text-sm text-foreground/60">{t('booking.confirm.time')}</p>
                   </div>
                   <p className="font-semibold text-foreground">
                     {selectedTime?.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                   <p className="text-sm text-foreground/60">
-                    {selectedTime?.toLocaleDateString('vi-VN')} • {duration} phút
+                    {selectedTime?.toLocaleDateString('vi-VN')} • {duration} {t('booking.minutes')}
                   </p>
                 </div>
               </div>
 
               <div className="flex justify-between items-center p-4 bg-primary/10 rounded-xl">
-                <p className="font-semibold text-foreground">Đã thanh toán</p>
+                <p className="font-semibold text-foreground">{t('booking.success.paid')}</p>
                 <p className="text-2xl font-bold text-primary">{totalPrice.toLocaleString()}đ</p>
               </div>
             </div>
@@ -995,13 +999,13 @@ function BookingSuccess({
               <Button variant="outline" className="flex-1" asChild>
                 <Link to="/dashboard/bookings">
                   <Calendar className="w-4 h-4" />
-                  Xem lịch đặt
+                  {t('booking.success.viewSchedule')}
                 </Link>
               </Button>
               <Button variant="hero" className="flex-1" asChild>
                 <Link to={`/station/${station.id}`}>
                   <MapPin className="w-4 h-4" />
-                  Chỉ đường
+                  {t('station.directions')}
                 </Link>
               </Button>
             </div>
@@ -1009,8 +1013,7 @@ function BookingSuccess({
             {/* Tips */}
             <div className="p-4 bg-warning/10 border border-warning/20 rounded-xl">
               <p className="text-sm text-foreground">
-                <strong>Lưu ý:</strong> Vui lòng đến trạm trước giờ hẹn 5-10 phút. 
-                Nếu không check-in trong vòng 15 phút, đặt chỗ sẽ tự động hủy.
+                <strong>{t('booking.success.note')}</strong> {t('booking.success.noteText')}
               </p>
             </div>
           </motion.div>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Zap, 
   MapPin, 
@@ -20,37 +21,39 @@ import {
   Bolt,
 } from 'lucide-react';
 
-const features = [
-  {
-    icon: MapPin,
-    title: 'Tìm trạm thông minh',
-    description: 'Bản đồ real-time với hơn 150 trạm sạc trên toàn quốc, lọc theo loại cổng, công suất, giá.',
-  },
-  {
-    icon: Brain,
-    title: 'AI Gợi ý tối ưu',
-    description: 'Thuật toán AI phân tích vị trí, pin xe, điểm đến để đề xuất trạm phù hợp nhất.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Dự đoán thời gian',
-    description: 'Xem trước mức độ đông đúc theo giờ, tìm "giờ vàng" để sạc nhanh nhất.',
-  },
-  {
-    icon: Clock,
-    title: 'Đặt chỗ trước',
-    description: 'Giữ chỗ cổng sạc, không lo hết chỗ. Hủy miễn phí trước 30 phút.',
-  },
-];
-
-const stats = [
-  { value: '150+', label: 'Trạm sạc' },
-  { value: '500+', label: 'Cổng sạc' },
-  { value: '10K+', label: 'Người dùng' },
-  { value: '99%', label: 'Uptime' },
-];
-
 export default function Landing() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      icon: MapPin,
+      title: t('landing.features.ai'),
+      description: t('landing.features.aiDesc'),
+    },
+    {
+      icon: Brain,
+      title: t('landing.features.booking'),
+      description: t('landing.features.bookingDesc'),
+    },
+    {
+      icon: BarChart3,
+      title: t('landing.features.realtime'),
+      description: t('landing.features.realtimeDesc'),
+    },
+    {
+      icon: Clock,
+      title: t('landing.features.payment'),
+      description: t('landing.features.paymentDesc'),
+    },
+  ];
+
+  const stats = [
+    { value: '150+', label: t('landing.stats.stations') },
+    { value: '500+', label: t('explore.chargers') },
+    { value: '10K+', label: t('landing.stats.users') },
+    { value: '99%', label: 'Uptime' },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -83,31 +86,28 @@ export default function Landing() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                <span className="text-sm font-medium">Nền tảng sạc xe điện thông minh</span>
+                <span className="text-sm font-medium">{t('landing.hero.title')}</span>
               </motion.div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-[1.1] tracking-tight">
-                Bạn có đang sạc xe
-                <br />
-                <span className="gradient-text italic">thông minh?</span>
+                {t('landing.hero.subtitle')}
               </h1>
 
               <p className="text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
-                Tìm trạm sạc tối ưu và <span className="text-foreground font-medium">đặt chỗ trước</span>. 
-                Công cụ AI giúp bạn tiết kiệm thời gian khi sạc xe điện.
+                {t('landing.hero.subtitle')}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-10">
                 <Button variant="hero" size="xl" asChild>
                   <Link to="/explore">
-                    Tìm trạm ngay
+                    {t('landing.hero.cta')}
                     <ArrowRight className="w-5 h-5" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="xl" className="group" asChild>
                   <Link to="/pricing">
                     <Play className="w-4 h-4 group-hover:text-primary transition-colors" />
-                    Xem demo
+                    {t('landing.hero.secondary')}
                   </Link>
                 </Button>
               </div>
@@ -116,15 +116,15 @@ export default function Landing() {
               <div className="flex flex-wrap items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-success" />
-                  <span className="text-foreground/80">Miễn phí sử dụng</span>
+                  <span className="text-foreground/80">{t('common.free')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-success" />
-                  <span className="text-foreground/80">Bảo mật dữ liệu</span>
+                  <span className="text-foreground/80">{t('settings.security')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Bolt className="w-4 h-4 text-success" />
-                  <span className="text-foreground/80">Cập nhật real-time</span>
+                  <span className="text-foreground/80">{t('landing.features.realtime')}</span>
                 </div>
               </div>
             </motion.div>
@@ -172,8 +172,8 @@ export default function Landing() {
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">AI đề xuất</p>
-                      <p className="font-bold text-lg text-success">95% phù hợp</p>
+                      <p className="text-xs text-muted-foreground">{t('explore.sortAI')}</p>
+                      <p className="font-bold text-lg text-success">95%</p>
                     </div>
                   </div>
                 </motion.div>
@@ -190,7 +190,7 @@ export default function Landing() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
                     </span>
-                    <span className="text-xs text-success font-medium">3 cổng trống</span>
+                    <span className="text-xs text-success font-medium">3 {t('explore.availableNow')}</span>
                   </div>
                   <p className="font-semibold text-sm mb-1">VinFast Hà Nội 1</p>
                   <p className="text-xs text-muted-foreground">150 kW • 1.2 km • 4.8⭐</p>
@@ -233,11 +233,10 @@ export default function Landing() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Sạc xe thông minh hơn với <span className="gradient-text">AI</span>
+              {t('landing.features.title')} <span className="gradient-text">AI</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              SCS GO kết hợp dữ liệu real-time và thuật toán AI để mang đến 
-              trải nghiệm tìm và đặt trạm sạc tốt nhất.
+              {t('landing.hero.subtitle')}
             </p>
           </motion.div>
 
@@ -277,22 +276,18 @@ export default function Landing() {
                 AI Engine
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                AI hiểu bạn cần gì,
-                <br />
-                <span className="gradient-text">gợi ý trạm tối ưu</span>
+                {t('landing.features.ai')}
               </h2>
               <p className="text-muted-foreground mb-8">
-                Thuật toán AI của SCS GO phân tích nhiều yếu tố để tìm trạm sạc 
-                phù hợp nhất với bạn: vị trí hiện tại, mức pin, điểm đến, 
-                giờ cao điểm, giá cả và đánh giá.
+                {t('landing.features.aiDesc')}
               </p>
 
               <div className="space-y-4">
                 {[
-                  'Gợi ý trạm theo hành trình của bạn',
-                  'Dự đoán độ đông theo giờ với độ chính xác cao',
-                  'Tối ưu theo tiêu chí: Nhanh, Rẻ, Ít lệch tuyến',
-                  'Giải thích lý do AI chọn trạm',
+                  t('landing.features.aiDesc'),
+                  t('landing.features.realtimeDesc'),
+                  t('landing.features.bookingDesc'),
+                  t('landing.features.paymentDesc'),
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />
@@ -303,7 +298,7 @@ export default function Landing() {
 
               <Button variant="hero" className="mt-8" asChild>
                 <Link to="/explore">
-                  Trải nghiệm ngay
+                  {t('landing.hero.cta')}
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </Button>
@@ -322,8 +317,8 @@ export default function Landing() {
                     <Sparkles className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
-                    <p className="font-semibold">AI đề xuất cho bạn</p>
-                    <p className="text-sm text-muted-foreground">Dựa trên vị trí và hồ sơ xe</p>
+                    <p className="font-semibold">{t('explore.sortAI')}</p>
+                    <p className="text-sm text-muted-foreground">{t('landing.features.aiDesc')}</p>
                   </div>
                 </div>
 
@@ -353,7 +348,7 @@ export default function Landing() {
 
               {/* Floating elements */}
               <div className="absolute -top-4 -right-4 px-3 py-1.5 bg-success/20 text-success rounded-full text-sm font-medium border border-success/30">
-                Giờ vàng: 10:00 - 12:00
+                {t('station.bestTime')}: 10:00 - 12:00
               </div>
             </motion.div>
           </div>
@@ -369,17 +364,17 @@ export default function Landing() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Gói dịch vụ linh hoạt
+              {t('pricing.title')}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Từ miễn phí cho người dùng cá nhân đến Enterprise cho doanh nghiệp lớn.
+              {t('pricing.subtitle')}
             </p>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
               {[
-                { name: 'Free', price: '0đ', desc: 'Cho người dùng cá nhân', icon: Users },
-                { name: 'Plus', price: '99K/tháng', desc: 'Nhiều tính năng hơn', icon: Zap, highlighted: true },
-                { name: 'Business', price: 'Liên hệ', desc: 'Cho chủ trạm sạc', icon: Building2 },
+                { name: 'Free', price: '0đ', desc: t('common.free'), icon: Users },
+                { name: 'Plus', price: '99K/' + t('common.month'), desc: t('subscription.upgrade'), icon: Zap, highlighted: true },
+                { name: 'Business', price: 'Contact', desc: t('subscription.upgrade'), icon: Building2 },
               ].map((plan, i) => (
                 <div 
                   key={i}
@@ -395,7 +390,7 @@ export default function Landing() {
 
             <Button variant="outline" size="lg" asChild>
               <Link to="/pricing">
-                Xem chi tiết bảng giá
+                {t('landing.hero.secondary')}
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </Button>
@@ -415,21 +410,21 @@ export default function Landing() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-cyan-500/10" />
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Sẵn sàng sạc thông minh?
+                {t('common.getStarted')}
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-                Tham gia cùng hàng nghìn người dùng đang sử dụng SCS GO để tìm và đặt trạm sạc.
+                {t('landing.hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button variant="hero" size="xl" asChild>
                   <Link to="/auth?mode=register">
-                    Bắt đầu miễn phí
+                    {t('auth.register')}
                     <ArrowRight className="w-5 h-5" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="xl" asChild>
                   <Link to="/explore">
-                    Khám phá trạm sạc
+                    {t('explore.title')}
                   </Link>
                 </Button>
               </div>

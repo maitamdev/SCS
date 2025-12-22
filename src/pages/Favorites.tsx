@@ -4,11 +4,11 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Heart,
   MapPin,
   Zap,
-  Star,
   Loader2,
   Trash2,
 } from 'lucide-react';
@@ -16,19 +16,20 @@ import {
 export default function Favorites() {
   const { favorites, loading, removeFavorite } = useFavorites();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleRemove = async (stationId: string) => {
     const { error } = await removeFavorite(stationId);
     if (error) {
       toast({
-        title: 'Lỗi',
+        title: t('common.error'),
         description: error,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Đã xóa',
-        description: 'Đã xóa khỏi danh sách yêu thích',
+        title: t('common.success'),
+        description: t('favorites.remove'),
       });
     }
   };
@@ -38,13 +39,13 @@ export default function Favorites() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Trạm yêu thích</h1>
-            <p className="text-muted-foreground">{favorites.length} trạm đã lưu</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('favorites.title')}</h1>
+            <p className="text-muted-foreground">{favorites.length} {t('favorites.subtitle')}</p>
           </div>
           <Button variant="outline" asChild>
             <Link to="/explore">
               <MapPin className="w-4 h-4" />
-              Khám phá thêm
+              {t('explore.title')}
             </Link>
           </Button>
         </div>
@@ -56,12 +57,12 @@ export default function Favorites() {
         ) : favorites.length === 0 ? (
           <div className="card-premium p-12 text-center">
             <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">Chưa có trạm yêu thích</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">{t('favorites.noFavorites')}</h3>
             <p className="text-muted-foreground mb-4">
-              Lưu các trạm sạc thường dùng để truy cập nhanh hơn
+              {t('favorites.noFavoritesDesc')}
             </p>
             <Button variant="hero" asChild>
-              <Link to="/explore">Khám phá trạm sạc</Link>
+              <Link to="/explore">{t('explore.title')}</Link>
             </Button>
           </div>
         ) : (
@@ -123,7 +124,7 @@ export default function Favorites() {
                     </span>
                     <Button variant="outline" size="sm" asChild>
                       <Link to={`/station/${favorite.station_id}`}>
-                        Xem chi tiết
+                        {t('bookings.viewDetails')}
                       </Link>
                     </Button>
                   </div>

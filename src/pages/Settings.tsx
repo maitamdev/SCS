@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import {
   User,
@@ -29,11 +30,13 @@ import {
   Loader2,
   LogOut,
   ChevronRight,
+  Languages,
 } from 'lucide-react';
 
 export default function Settings() {
   const { user, updateProfile, signOut } = useAuth();
   const { theme, setTheme, isDark } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const { toast } = useToast();
 
   const [saving, setSaving] = useState(false);
@@ -46,7 +49,6 @@ export default function Settings() {
   const [settings, setSettings] = useState({
     notifications: true,
     emailNotifications: true,
-    language: 'vi',
   });
 
   const handleSaveProfile = async () => {
@@ -54,13 +56,13 @@ export default function Settings() {
     try {
       await updateProfile(profileData);
       toast({
-        title: 'Đã lưu',
-        description: 'Thông tin cá nhân đã được cập nhật',
+        title: t('common.success'),
+        description: language === 'vi' ? 'Thông tin cá nhân đã được cập nhật' : 'Profile updated successfully',
       });
     } catch {
       toast({
-        title: 'Lỗi',
-        description: 'Không thể lưu thông tin',
+        title: t('common.error'),
+        description: language === 'vi' ? 'Không thể lưu thông tin' : 'Failed to save',
         variant: 'destructive',
       });
     } finally {
@@ -77,8 +79,8 @@ export default function Settings() {
     <DashboardLayout>
       <div className="max-w-2xl space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Cài đặt</h1>
-          <p className="text-muted-foreground">Quản lý tài khoản và tùy chọn</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('settings.title')}</h1>
+          <p className="text-muted-foreground">{t('settings.subtitle')}</p>
         </div>
 
         {/* Profile Section */}
@@ -89,17 +91,17 @@ export default function Settings() {
         >
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
-            Thông tin cá nhân
+            {t('settings.profile')}
           </h3>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Họ và tên</Label>
+              <Label htmlFor="name">{t('settings.fullName')}</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="name"
-                  placeholder="Nguyễn Văn A"
+                  placeholder={language === 'vi' ? 'Nguyễn Văn A' : 'John Doe'}
                   value={profileData.full_name}
                   onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
                   className="pl-10"
@@ -108,7 +110,7 @@ export default function Settings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Số điện thoại</Label>
+              <Label htmlFor="phone">{t('settings.phone')}</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -123,12 +125,12 @@ export default function Settings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Địa chỉ</Label>
+              <Label htmlFor="address">{t('settings.address')}</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="address"
-                  placeholder="123 Đường ABC, Quận XYZ"
+                  placeholder={language === 'vi' ? '123 Đường ABC, Quận XYZ' : '123 Main St, City'}
                   value={profileData.address}
                   onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                   className="pl-10"
@@ -137,25 +139,25 @@ export default function Settings() {
             </div>
 
             <div className="space-y-2">
-              <Label>Email</Label>
+              <Label>{t('auth.email')}</Label>
               <Input
                 value={user?.email || ''}
                 disabled
                 className="bg-secondary/50"
               />
-              <p className="text-xs text-muted-foreground">Email không thể thay đổi</p>
+              <p className="text-xs text-muted-foreground">{t('settings.emailCantChange')}</p>
             </div>
 
             <Button variant="hero" onClick={handleSaveProfile} disabled={saving}>
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Đang lưu...
+                  {t('settings.saving')}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Lưu thay đổi
+                  {t('settings.saveChanges')}
                 </>
               )}
             </Button>
@@ -171,14 +173,14 @@ export default function Settings() {
         >
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <Bell className="w-5 h-5 text-primary" />
-            Thông báo
+            {t('settings.notifications')}
           </h3>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-foreground">Thông báo đẩy</p>
-                <p className="text-sm text-muted-foreground">Nhận thông báo về booking và khuyến mãi</p>
+                <p className="font-medium text-foreground">{t('settings.pushNotifications')}</p>
+                <p className="text-sm text-muted-foreground">{t('settings.pushDesc')}</p>
               </div>
               <Switch
                 checked={settings.notifications}
@@ -188,8 +190,8 @@ export default function Settings() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-foreground">Email thông báo</p>
-                <p className="text-sm text-muted-foreground">Nhận email về hoạt động tài khoản</p>
+                <p className="font-medium text-foreground">{t('settings.emailNotifications')}</p>
+                <p className="text-sm text-muted-foreground">{t('settings.emailDesc')}</p>
               </div>
               <Switch
                 checked={settings.emailNotifications}
@@ -208,12 +210,12 @@ export default function Settings() {
         >
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             {isDark ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
-            Giao diện
+            {t('settings.appearance')}
           </h3>
 
           <div className="space-y-4">
             <div>
-              <p className="font-medium text-foreground mb-3">Chế độ hiển thị</p>
+              <p className="font-medium text-foreground mb-3">{t('settings.displayMode')}</p>
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setTheme('light')}
@@ -224,7 +226,7 @@ export default function Settings() {
                   }`}
                 >
                   <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className="text-sm font-medium">Sáng</span>
+                  <span className="text-sm font-medium">{t('settings.light')}</span>
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
@@ -235,7 +237,7 @@ export default function Settings() {
                   }`}
                 >
                   <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className="text-sm font-medium">Tối</span>
+                  <span className="text-sm font-medium">{t('settings.dark')}</span>
                 </button>
                 <button
                   onClick={() => setTheme('system')}
@@ -246,26 +248,29 @@ export default function Settings() {
                   }`}
                 >
                   <Monitor className={`w-5 h-5 ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className="text-sm font-medium">Hệ thống</span>
+                  <span className="text-sm font-medium">{t('settings.system')}</span>
                 </button>
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <div>
-                <p className="font-medium text-foreground">Ngôn ngữ</p>
-                <p className="text-sm text-muted-foreground">Chọn ngôn ngữ hiển thị</p>
+              <div className="flex items-center gap-2">
+                <Languages className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="font-medium text-foreground">{t('settings.language')}</p>
+                  <p className="text-sm text-muted-foreground">{t('settings.languageDesc')}</p>
+                </div>
               </div>
               <Select
-                value={settings.language}
-                onValueChange={(value) => setSettings({ ...settings, language: value })}
+                value={language}
+                onValueChange={(value: 'vi' | 'en') => setLanguage(value)}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-36">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="vi">Tiếng Việt</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="vi">🇻🇳 Tiếng Việt</SelectItem>
+                  <SelectItem value="en">🇺🇸 English</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -281,22 +286,22 @@ export default function Settings() {
         >
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
-            Bảo mật
+            {t('settings.security')}
           </h3>
 
           <div className="space-y-2">
             <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-colors">
               <div className="text-left">
-                <p className="font-medium text-foreground">Đổi mật khẩu</p>
-                <p className="text-sm text-muted-foreground">Cập nhật mật khẩu đăng nhập</p>
+                <p className="font-medium text-foreground">{t('settings.changePassword')}</p>
+                <p className="text-sm text-muted-foreground">{t('settings.changePasswordDesc')}</p>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
 
             <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-colors">
               <div className="text-left">
-                <p className="font-medium text-foreground">Xác thực 2 bước</p>
-                <p className="text-sm text-muted-foreground">Bảo vệ tài khoản với OTP</p>
+                <p className="font-medium text-foreground">{t('settings.twoFactor')}</p>
+                <p className="text-sm text-muted-foreground">{t('settings.twoFactorDesc')}</p>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
@@ -312,7 +317,7 @@ export default function Settings() {
         >
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <Trash2 className="w-5 h-5 text-destructive" />
-            Vùng nguy hiểm
+            {t('settings.dangerZone')}
           </h3>
 
           <div className="space-y-3">
@@ -322,7 +327,7 @@ export default function Settings() {
               onClick={handleSignOut}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Đăng xuất
+              {t('auth.logout')}
             </Button>
 
             <Button 
@@ -330,10 +335,10 @@ export default function Settings() {
               className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Xóa tài khoản
+              {t('settings.deleteAccount')}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Xóa vĩnh viễn tài khoản và tất cả dữ liệu. Hành động này không thể hoàn tác.
+              {t('settings.deleteAccountDesc')}
             </p>
           </div>
         </motion.div>

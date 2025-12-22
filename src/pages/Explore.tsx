@@ -8,6 +8,7 @@ import { NoStationsFound } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
 import { useStations } from '@/hooks/useStations';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { getTopRecommendations } from '@/ai/recommendation';
 import { StationFilters, SortOption, Vehicle, OptimizationMode } from '@/types';
 import { MapPin, Sparkles } from 'lucide-react';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 export default function Explore() {
   const { stations, loading: stationsLoading } = useStations();
   const { user } = useAuth();
+  const { t } = useLanguage();
   
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -196,11 +198,11 @@ export default function Explore() {
   const loading = stationsLoading || locationLoading;
 
   const optimizationModes: { value: OptimizationMode; label: string }[] = [
-    { value: 'balanced', label: 'Cân bằng' },
-    { value: 'fastest', label: 'Nhanh nhất' },
-    { value: 'cheapest', label: 'Rẻ nhất' },
-    { value: 'least_detour', label: 'Ít lệch' },
-    { value: 'least_wait', label: 'Ít chờ' },
+    { value: 'balanced', label: t('explore.sortAI') },
+    { value: 'fastest', label: t('explore.sortPower') },
+    { value: 'cheapest', label: t('explore.sortPrice') },
+    { value: 'least_detour', label: t('explore.sortDistance') },
+    { value: 'least_wait', label: t('explore.available') },
   ];
 
   return (
@@ -210,11 +212,11 @@ export default function Explore() {
       <main className="pt-20 pb-8">
         <div className="container mx-auto px-4">
           <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">Khám phá trạm sạc</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('explore.title')}</h1>
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="w-4 h-4" />
               <span className="text-sm">
-                {userLocation ? 'Đang hiển thị trạm gần bạn' : 'Đang lấy vị trí...'}
+                {userLocation ? t('explore.subtitle') : t('common.loading')}
               </span>
               {locationError && (
                 <span className="text-xs text-yellow-500">{locationError}</span>
@@ -225,7 +227,7 @@ export default function Explore() {
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Chế độ AI tối ưu</span>
+              <span className="text-sm font-medium">{t('explore.sortAI')}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {optimizationModes.map((mode) => (
@@ -257,7 +259,7 @@ export default function Explore() {
           <div className="mt-6">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-muted-foreground">
-                {loading ? 'Đang tải...' : `Tìm thấy ${filteredStations.length} trạm`}
+                {loading ? t('common.loading') : `${filteredStations.length} ${t('landing.stats.stations')}`}
               </p>
             </div>
 
@@ -300,7 +302,7 @@ export default function Explore() {
             {filteredStations.length > 30 && (
               <div className="text-center mt-8">
                 <Button variant="outline">
-                  Xem thêm {filteredStations.length - 30} trạm
+                  {t('common.viewAll')} {filteredStations.length - 30}
                 </Button>
               </div>
             )}

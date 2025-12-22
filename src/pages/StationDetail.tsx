@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { StationDetailSkeleton } from '@/components/ui/skeleton';
 import { useStation } from '@/hooks/useStations';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { CONNECTOR_LABELS } from '@/lib/constants';
 import { getSimplePrediction } from '@/ai/prediction';
 import { Charger, ChargerStatus } from '@/types';
@@ -43,17 +44,18 @@ const amenityIcons: Record<string, React.ElementType> = {
   'shopping': Car,
 };
 
-const chargerStatusConfig: Record<ChargerStatus, { icon: React.ElementType; label: string; className: string }> = {
-  available: { icon: CheckCircle2, label: 'Sẵn sàng', className: 'text-success' },
-  occupied: { icon: AlertCircle, label: 'Đang sử dụng', className: 'text-warning' },
-  out_of_service: { icon: XCircle, label: 'Tạm ngưng', className: 'text-destructive' },
-};
-
 export default function StationDetail() {
   const { id } = useParams<{ id: string }>();
   const { station, loading } = useStation(id || '');
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { t } = useLanguage();
   const [selectedCharger, setSelectedCharger] = useState<Charger | null>(null);
+
+  const chargerStatusConfig: Record<ChargerStatus, { icon: React.ElementType; label: string; className: string }> = {
+    available: { icon: CheckCircle2, label: t('booking.chargerAvailable'), className: 'text-success' },
+    occupied: { icon: AlertCircle, label: t('booking.chargerOccupied'), className: 'text-warning' },
+    out_of_service: { icon: XCircle, label: t('booking.chargerMaintenance'), className: 'text-destructive' },
+  };
 
   if (loading) {
     return (
@@ -72,10 +74,10 @@ export default function StationDetail() {
         <Header />
         <main className="pt-20 container mx-auto px-4 text-center py-12">
           <Zap className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Không tìm thấy trạm sạc</h1>
-          <p className="text-muted-foreground mb-4">Trạm sạc này không tồn tại hoặc đã bị xóa</p>
+          <h1 className="text-2xl font-bold mb-2">{t('explore.noStations')}</h1>
+          <p className="text-muted-foreground mb-4">{t('common.noData')}</p>
           <Button asChild>
-            <Link to="/explore">Quay lại khám phá</Link>
+            <Link to="/explore">{t('common.back')}</Link>
           </Button>
         </main>
       </div>
@@ -99,7 +101,7 @@ export default function StationDetail() {
           <Button variant="ghost" size="sm" className="mb-4" asChild>
             <Link to="/explore">
               <ChevronLeft className="w-4 h-4" />
-              Quay lại
+              {t('common.back')}
             </Link>
           </Button>
 
@@ -163,22 +165,22 @@ export default function StationDetail() {
                   <div className="card-premium p-4 text-center">
                     <Star className="w-5 h-5 text-amber-500 mx-auto mb-1" />
                     <p className="text-xl font-bold">{station.avg_rating?.toFixed(1) || '-'}</p>
-                    <p className="text-xs text-muted-foreground">{station.review_count} đánh giá</p>
+                    <p className="text-xs text-muted-foreground">{station.review_count} {t('station.reviews')}</p>
                   </div>
                   <div className="card-premium p-4 text-center">
                     <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
                     <p className="text-xl font-bold">{station.max_power} kW</p>
-                    <p className="text-xs text-muted-foreground">Công suất max</p>
+                    <p className="text-xs text-muted-foreground">{t('explore.power')}</p>
                   </div>
                   <div className="card-premium p-4 text-center">
                     <Plug className="w-5 h-5 text-success mx-auto mb-1" />
                     <p className="text-xl font-bold">{availableChargers.length}/{station.chargers?.length || 0}</p>
-                    <p className="text-xs text-muted-foreground">Cổng trống</p>
+                    <p className="text-xs text-muted-foreground">{t('explore.available')}</p>
                   </div>
                   <div className="card-premium p-4 text-center">
                     <Coins className="w-5 h-5 text-warning mx-auto mb-1" />
                     <p className="text-xl font-bold">{station.min_price?.toLocaleString()}đ</p>
-                    <p className="text-xs text-muted-foreground">Từ /kWh</p>
+                    <p className="text-xs text-muted-foreground">{t('explore.price')}/kWh</p>
                   </div>
                 </div>
 
@@ -188,7 +190,7 @@ export default function StationDetail() {
                     <Clock className="w-4 h-4 text-muted-foreground" />
                     <span>
                       {station.hours_json?.is_24h 
-                        ? 'Mở cửa 24/7' 
+                        ? t('station.open24h')
                         : `${station.hours_json?.open} - ${station.hours_json?.close}`
                       }
                     </span>
@@ -201,7 +203,7 @@ export default function StationDetail() {
                 {/* Amenities */}
                 {station.amenities_json && station.amenities_json.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="font-semibold mb-3">Tiện ích</h3>
+                    <h3 className="font-semibold mb-3">{t('station.amenities')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {station.amenities_json.map((amenity) => {
                         const Icon = amenityIcons[amenity] || CheckCircle2;
@@ -226,7 +228,7 @@ export default function StationDetail() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <h3 className="font-semibold mb-4">Cổng sạc ({station.chargers?.length || 0})</h3>
+                <h3 className="font-semibold mb-4">{t('station.chargers')} ({station.chargers?.length || 0})</h3>
                 <div className="grid gap-3">
                   {station.chargers?.map((charger) => {
                     const status = chargerStatusConfig[charger.status];
@@ -279,7 +281,7 @@ export default function StationDetail() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <h3 className="font-semibold mb-4">Đánh giá gần đây</h3>
+                  <h3 className="font-semibold mb-4">{t('station.recentReviews')}</h3>
                   <div className="space-y-4">
                     {station.reviews.slice(0, 5).map((review) => (
                       <div key={review.id} className="card-premium p-4">
@@ -288,7 +290,7 @@ export default function StationDetail() {
                             <User className="w-4 h-4 text-primary" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium">{review.profiles?.full_name || 'Người dùng'}</p>
+                            <p className="text-sm font-medium">{review.profiles?.full_name || t('station.user')}</p>
                             <p className="text-xs text-muted-foreground">
                               {new Date(review.created_at).toLocaleDateString('vi-VN')}
                             </p>
@@ -329,7 +331,7 @@ export default function StationDetail() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <h3 className="font-semibold mb-4 text-foreground">Đặt chỗ sạc</h3>
+                <h3 className="font-semibold mb-4 text-foreground">{t('station.bookCharging')}</h3>
 
                 <div className="space-y-4">
                   <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
@@ -338,35 +340,35 @@ export default function StationDetail() {
                         <Zap className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">{availableChargers.length} cổng trống</p>
-                        <p className="text-sm text-foreground/60">Từ {station.min_price?.toLocaleString()}đ/kWh</p>
+                        <p className="font-semibold text-foreground">{availableChargers.length} {t('station.portsAvailable')}</p>
+                        <p className="text-sm text-foreground/60">{t('station.from')} {station.min_price?.toLocaleString()}đ/kWh</p>
                       </div>
                     </div>
                     <p className="text-xs text-foreground/50">
-                      Đặt chỗ trước để đảm bảo có cổng sạc khi bạn đến
+                      {t('station.bookAdvice')}
                     </p>
                   </div>
 
                   <Button variant="hero" className="w-full" size="lg" asChild>
                     <Link to={`/booking/${station.id}`}>
                       <Calendar className="w-4 h-4" />
-                      Đặt chỗ ngay
+                      {t('station.bookNow')}
                     </Link>
                   </Button>
 
                   <p className="text-xs text-foreground/50 text-center">
-                    Hủy miễn phí trước 30 phút • Giữ chỗ trong 10 phút
+                    {t('station.cancelPolicy')}
                   </p>
                 </div>
 
                 <div className="flex gap-2 mt-4 pt-4 border-t border-border/40">
                   <Button variant="outline" size="sm" className="flex-1">
                     <Navigation className="w-4 h-4" />
-                    Chỉ đường
+                    {t('station.directions')}
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1">
                     <Phone className="w-4 h-4" />
-                    Liên hệ
+                    {t('station.contact')}
                   </Button>
                 </div>
               </motion.div>

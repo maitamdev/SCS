@@ -14,6 +14,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Vehicle } from '@/types';
 import { CONNECTOR_TYPES, CONNECTOR_LABELS } from '@/lib/constants';
 import {
@@ -53,6 +54,7 @@ const CAR_DATABASE = [
 export default function VehicleSettings() {
   const { user, updateVehicle } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [vehicle, setVehicle] = useState<Partial<Vehicle>>({
     name: '',
@@ -189,10 +191,10 @@ export default function VehicleSettings() {
   const hasVehicle = user?.vehicle && user.vehicle.name;
 
   const connectionSteps = [
-    { icon: Wifi, text: 'Đang tìm kiếm thiết bị...' },
-    { icon: Car, text: 'Đã tìm thấy xe điện!' },
-    { icon: Battery, text: 'Đang đọc thông tin xe...' },
-    { icon: CheckCircle2, text: 'Hoàn tất!' },
+    { icon: Wifi, text: t('vehicle.searching') },
+    { icon: Car, text: t('vehicle.found') },
+    { icon: Battery, text: t('vehicle.reading') },
+    { icon: CheckCircle2, text: t('vehicle.complete') },
   ];
 
   return (
@@ -200,13 +202,13 @@ export default function VehicleSettings() {
       <div className="max-w-2xl space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Xe của tôi</h1>
-            <p className="text-muted-foreground">Kết nối và quản lý xe điện</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('vehicle.title')}</h1>
+            <p className="text-muted-foreground">{t('vehicle.subtitle')}</p>
           </div>
           {hasVehicle && !editing && (
             <Button onClick={() => setEditing(true)}>
               <Edit className="w-4 h-4" />
-              Chỉnh sửa
+              {t('common.edit')}
             </Button>
           )}
         </div>
@@ -221,37 +223,37 @@ export default function VehicleSettings() {
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <Usb className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Kết nối xe điện</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-2">{t('vehicle.connect')}</h3>
             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              Kết nối xe qua cáp sạc hoặc Bluetooth để tự động nhận diện thông tin xe và mức pin
+              {t('vehicle.connectDesc')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button variant="hero" size="lg" onClick={() => setShowConnectModal(true)}>
                 <Usb className="w-5 h-5 mr-2" />
-                Kết nối xe
+                {t('vehicle.connect')}
               </Button>
               <Button variant="outline" size="lg" onClick={() => setEditing(true)}>
                 <Edit className="w-5 h-5 mr-2" />
-                Nhập thủ công
+                {t('vehicle.manual')}
               </Button>
             </div>
 
             {/* Connection methods */}
             <div className="mt-8 pt-6 border-t border-border">
-              <p className="text-sm text-muted-foreground mb-4">Phương thức kết nối hỗ trợ</p>
+              <p className="text-sm text-muted-foreground mb-4">{t('vehicle.connectionMethods')}</p>
               <div className="flex justify-center gap-6">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Usb className="w-4 h-4" />
-                  <span>Cáp OBD-II</span>
+                  <span>{t('vehicle.obd')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Wifi className="w-4 h-4" />
-                  <span>Bluetooth</span>
+                  <span>{t('vehicle.bluetooth')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Smartphone className="w-4 h-4" />
-                  <span>App xe</span>
+                  <span>{t('vehicle.app')}</span>
                 </div>
               </div>
             </div>
@@ -281,7 +283,7 @@ export default function VehicleSettings() {
                     <div className="flex items-center gap-2 mt-1">
                       <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
-                        Đã kết nối
+                        {t('vehicle.connected')}
                       </span>
                     </div>
                   </>
@@ -291,7 +293,7 @@ export default function VehicleSettings() {
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => setShowConnectModal(true)}>
                     <Usb className="w-4 h-4 mr-1" />
-                    Đồng bộ
+                    {t('vehicle.sync')}
                   </Button>
                   <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={handleDisconnect}>
                     <X className="w-4 h-4" />
@@ -305,7 +307,7 @@ export default function VehicleSettings() {
               <div className="flex items-center justify-between mb-2">
                 <Label className="flex items-center gap-2 text-foreground">
                   <Battery className="w-4 h-4" />
-                  Mức pin hiện tại
+                  {t('vehicle.battery')}
                 </Label>
                 <span className="text-lg font-bold text-primary">{vehicle.soc_current || 50}%</span>
               </div>
@@ -335,7 +337,7 @@ export default function VehicleSettings() {
                 </div>
               )}
               <p className="text-sm text-muted-foreground mt-2">
-                Quãng đường ước tính:{' '}
+                {t('vehicle.range')}:{' '}
                 <span className="text-foreground font-medium">{estimatedRange} km</span>
               </p>
             </div>
@@ -345,7 +347,7 @@ export default function VehicleSettings() {
               <div>
                 <Label className="flex items-center gap-2 mb-2 text-foreground">
                   <Zap className="w-4 h-4" />
-                  Dung lượng pin (kWh)
+                  {t('vehicle.capacity')} (kWh)
                 </Label>
                 {editing ? (
                   <Input
@@ -360,7 +362,7 @@ export default function VehicleSettings() {
 
               <div>
                 <Label className="flex items-center gap-2 mb-2 text-foreground">
-                  Tiêu hao (kWh/100km)
+                  {t('vehicle.consumption')} (kWh/100km)
                 </Label>
                 {editing ? (
                   <Input
@@ -380,7 +382,7 @@ export default function VehicleSettings() {
               <div>
                 <Label className="flex items-center gap-2 mb-2 text-foreground">
                   <Plug className="w-4 h-4" />
-                  Cổng sạc ưa thích
+                  {t('vehicle.connector')}
                 </Label>
                 {editing ? (
                   <Select
@@ -415,12 +417,12 @@ export default function VehicleSettings() {
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Đang lưu...
+                      {t('settings.saving')}
                     </>
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      Lưu thay đổi
+                      {t('settings.saveChanges')}
                     </>
                   )}
                 </Button>
@@ -433,7 +435,7 @@ export default function VehicleSettings() {
                     setEditing(false);
                   }}
                 >
-                  Hủy
+                  {t('common.cancel')}
                 </Button>
               </div>
             )}
@@ -443,7 +445,7 @@ export default function VehicleSettings() {
         {/* Info */}
         <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
           <p className="text-sm text-foreground">
-            <strong>Mẹo:</strong> Kết nối xe thường xuyên để cập nhật mức pin chính xác, giúp AI gợi ý trạm sạc tốt hơn.
+            <strong>💡</strong> {t('vehicle.tip')}
           </p>
         </div>
       </div>
@@ -468,7 +470,7 @@ export default function VehicleSettings() {
               {!connecting ? (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold">Kết nối xe</h3>
+                    <h3 className="text-lg font-semibold">{t('vehicle.connect')}</h3>
                     <Button variant="ghost" size="icon" onClick={() => setShowConnectModal(false)}>
                       <X className="w-4 h-4" />
                     </Button>
@@ -479,13 +481,13 @@ export default function VehicleSettings() {
                       <Usb className="w-10 h-10 text-primary" />
                     </div>
                     <p className="text-muted-foreground">
-                      Đảm bảo xe đang bật và kết nối với thiết bị OBD-II hoặc bật Bluetooth
+                      {t('vehicle.connectTip')}
                     </p>
                   </div>
 
                   <Button variant="hero" className="w-full" onClick={handleConnect}>
                     <Wifi className="w-4 h-4 mr-2" />
-                    Bắt đầu kết nối
+                    {t('vehicle.startConnect')}
                   </Button>
                 </>
               ) : (

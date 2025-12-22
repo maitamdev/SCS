@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Mail, 
   Lock, 
@@ -23,6 +24,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const { user, signIn, signUp, signInWithGoogle, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -56,14 +58,14 @@ export default function Auth() {
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
           toast({
-            title: 'Đăng nhập thất bại',
+            title: t('common.error'),
             description: error,
             variant: 'destructive',
           });
         } else {
           toast({
-            title: 'Đăng nhập thành công',
-            description: 'Chào mừng bạn trở lại!',
+            title: t('common.success'),
+            description: t('auth.welcome'),
           });
           // Will redirect via useEffect
         }
@@ -71,14 +73,14 @@ export default function Auth() {
         const { error } = await signUp(formData.email, formData.password, formData.name);
         if (error) {
           toast({
-            title: 'Đăng ký thất bại',
+            title: t('common.error'),
             description: error,
             variant: 'destructive',
           });
         } else {
           toast({
-            title: 'Đăng ký thành công',
-            description: 'Chào mừng bạn đến với SCS GO!',
+            title: t('common.success'),
+            description: t('auth.welcome'),
           });
           navigate('/onboarding');
         }
@@ -94,7 +96,7 @@ export default function Auth() {
     
     if (error) {
       toast({
-        title: 'Đăng nhập thất bại',
+        title: t('common.error'),
         description: error,
         variant: 'destructive',
       });
@@ -121,12 +123,12 @@ export default function Auth() {
           </Link>
 
           <h1 className="text-2xl font-bold mb-2">
-            {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+            {mode === 'login' ? t('auth.login') : t('auth.createAccount')}
           </h1>
           <p className="text-muted-foreground mb-8">
             {mode === 'login' 
-              ? 'Chào mừng trở lại! Đăng nhập để tiếp tục.' 
-              : 'Tạo tài khoản miễn phí để bắt đầu.'}
+              ? t('auth.welcomeDesc')
+              : t('auth.createAccountDesc')}
           </p>
 
           {/* Google Sign In Button */}
@@ -156,7 +158,7 @@ export default function Auth() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Tiếp tục với Google
+            {t('auth.loginWithGoogle')}
           </Button>
 
           <div className="relative mb-4">
@@ -165,7 +167,7 @@ export default function Auth() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Hoặc
+                Or
               </span>
             </div>
           </div>
@@ -173,7 +175,7 @@ export default function Auth() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
               <div className="space-y-2">
-                <Label htmlFor="name">Họ tên</Label>
+                <Label htmlFor="name">{t('auth.fullName')}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -189,7 +191,7 @@ export default function Auth() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -206,10 +208,10 @@ export default function Auth() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Mật khẩu</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 {mode === 'login' && (
                   <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                    Quên mật khẩu?
+                    {t('auth.forgotPassword')}
                   </Link>
                 )}
               </div>
@@ -242,10 +244,10 @@ export default function Auth() {
               disabled={loading}
             >
               {loading ? (
-                <span className="animate-pulse">Đang xử lý...</span>
+                <span className="animate-pulse">{t('common.loading')}</span>
               ) : (
                 <>
-                  {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+                  {mode === 'login' ? t('auth.login') : t('auth.register')}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -254,13 +256,13 @@ export default function Auth() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
+              {mode === 'login' ? t('auth.noAccount') : t('auth.hasAccount')}
               {' '}
               <button
                 onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                 className="text-primary font-medium hover:underline"
               >
-                {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập'}
+                {mode === 'login' ? t('auth.register') : t('auth.login')}
               </button>
             </p>
           </div>
