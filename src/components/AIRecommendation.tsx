@@ -155,20 +155,20 @@ export function AIRecommendationPanel({
             {/* Mode selector */}
             <div className="p-4 border-b border-border/50">
               <p className="text-xs text-muted-foreground mb-2">{t('ai.optimizeFor')}</p>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {modeOptions.map((option) => (
                   <button
                     key={option.id}
                     onClick={() => setMode(option.id)}
                     className={cn(
-                      "flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-all",
+                      "flex flex-col items-center gap-1 p-2 rounded-lg transition-all",
                       mode === option.id
                         ? "bg-primary text-white shadow-lg shadow-primary/30"
                         : "bg-secondary/50 text-muted-foreground hover:bg-secondary"
                     )}
                   >
                     <option.icon className="w-4 h-4" />
-                    <span className="text-xs font-medium">{t(option.labelKey as keyof typeof import('@/lib/translations').translations.vi)}</span>
+                    <span className="text-[10px] sm:text-xs font-medium leading-tight text-center">{t(option.labelKey as keyof typeof import('@/lib/translations').translations.vi)}</span>
                   </button>
                 ))}
               </div>

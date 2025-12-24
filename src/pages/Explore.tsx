@@ -230,13 +230,13 @@ export default function Explore() {
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium">{t('explore.sortAI')}</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
               {optimizationModes.map((mode) => (
                 <button
                   key={mode.value}
                   onClick={() => setOptimizationMode(mode.value)}
                   className={cn(
-                    'px-3 py-1.5 text-sm rounded-lg border transition-colors',
+                    'px-3 py-1.5 text-sm rounded-lg border transition-colors whitespace-nowrap flex-shrink-0',
                     optimizationMode === mode.value
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-secondary border-border hover:border-primary/50'
@@ -257,9 +257,18 @@ export default function Explore() {
             onSearchChange={setSearchQuery}
           />
 
-          <div className="mt-6 flex gap-6">
+          <div className="mt-6 flex flex-col lg:flex-row gap-6">
+            {/* Mobile AI Panel - Show on top for mobile */}
+            <div className="lg:hidden">
+              <AIRecommendationPanel
+                stations={stations}
+                userLocation={userLocation}
+                vehicle={defaultVehicle}
+              />
+            </div>
+
             {/* Main content - Station grid */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-muted-foreground">
                   {loading ? t('common.loading') : `${filteredStations.length} ${t('landing.stats.stations')}`}
@@ -267,7 +276,7 @@ export default function Explore() {
               </div>
 
               {loading ? (
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {Array.from({ length: 6 }).map((_, index) => (
                     <StationCardSkeleton key={index} />
                   ))}
@@ -276,7 +285,7 @@ export default function Explore() {
                 <NoStationsFound />
               ) : (
                 <motion.div
-                  className="grid md:grid-cols-2 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                   initial="hidden"
                   animate="visible"
                   variants={{
@@ -311,7 +320,7 @@ export default function Explore() {
               )}
             </div>
 
-            {/* Sidebar - AI Recommendation Panel */}
+            {/* Sidebar - AI Recommendation Panel (Desktop only) */}
             <div className="hidden lg:block w-80 flex-shrink-0">
               <div className="sticky top-24">
                 <AIRecommendationPanel

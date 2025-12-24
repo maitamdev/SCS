@@ -183,6 +183,29 @@ export function Header() {
                 </Link>
               );
             })}
+            
+            {/* Mobile Theme & Language toggles */}
+            <div className="flex items-center gap-2 py-3 px-4">
+              <button
+                onClick={toggleTheme}
+                className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+                <span className="text-sm">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+              </button>
+              <button
+                onClick={toggleLanguage}
+                className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+              >
+                <Globe className="w-5 h-5" />
+                <span className="text-sm uppercase">{language === 'vi' ? 'EN' : 'VI'}</span>
+              </button>
+            </div>
+
             <div className="pt-4 border-t border-border/40 space-y-3">
               {user ? (
                 <Button variant="outline" className="w-full" asChild>

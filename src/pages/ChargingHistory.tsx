@@ -131,15 +131,15 @@ export default function ChargingHistory() {
         </div>
 
         {/* Time Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           <div className="flex gap-2">
             {timeFilters.map((filter) => (
               <button
                 key={filter.value}
                 onClick={() => setTimeFilter(filter.value)}
                 className={cn(
-                  'px-3 py-1.5 text-sm rounded-lg border transition-colors',
+                  'px-3 py-1.5 text-sm rounded-lg border transition-colors whitespace-nowrap',
                   timeFilter === filter.value
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-secondary border-border hover:border-primary/50'

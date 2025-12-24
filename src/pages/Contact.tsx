@@ -117,7 +117,7 @@ export default function Contact() {
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
             {/* Contact Info */}
             <motion.div 
               className="space-y-6"
