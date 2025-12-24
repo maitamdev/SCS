@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { TranslationKey } from '@/lib/translations';
 import { 
@@ -10,6 +11,9 @@ import {
   MapPin,
   LogIn,
   LayoutDashboard,
+  Sun,
+  Moon,
+  Globe,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -24,10 +28,19 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const { user } = useAuth();
 
   const isHomePage = location.pathname === '/';
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'vi' ? 'en' : 'vi');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,7 +96,30 @@ export function Header() {
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-secondary/80 transition-colors"
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-5 h-5 text-muted-foreground" />
+            ) : (
+              <Moon className="w-5 h-5 text-muted-foreground" />
+            )}
+          </button>
+
+          {/* Language toggle */}
+          <button
+            onClick={toggleLanguage}
+            className="p-2 rounded-lg hover:bg-secondary/80 transition-colors flex items-center gap-1"
+            title={language === 'vi' ? 'English' : 'Tiếng Việt'}
+          >
+            <Globe className="w-5 h-5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground uppercase">{language}</span>
+          </button>
+
           {user ? (
             <Button variant="ghost" size="sm" asChild>
               <Link to="/dashboard">

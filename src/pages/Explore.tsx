@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { StationCard } from '@/components/stations/StationCard';
 import { FiltersBar } from '@/components/stations/FiltersBar';
+import { AIRecommendationPanel } from '@/components/AIRecommendation';
 import { StationCardSkeleton } from '@/components/ui/skeleton';
 import { NoStationsFound } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
@@ -256,56 +257,70 @@ export default function Explore() {
             onSearchChange={setSearchQuery}
           />
 
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                {loading ? t('common.loading') : `${filteredStations.length} ${t('landing.stats.stations')}`}
-              </p>
+          <div className="mt-6 flex gap-6">
+            {/* Main content - Station grid */}
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground">
+                  {loading ? t('common.loading') : `${filteredStations.length} ${t('landing.stats.stations')}`}
+                </p>
+              </div>
+
+              {loading ? (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <StationCardSkeleton key={index} />
+                  ))}
+                </div>
+              ) : filteredStations.length === 0 ? (
+                <NoStationsFound />
+              ) : (
+                <motion.div
+                  className="grid md:grid-cols-2 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+                  }}
+                >
+                  {filteredStations.slice(0, 30).map((station) => (
+                    <motion.div
+                      key={station.id}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 },
+                      }}
+                    >
+                      <StationCard
+                        station={station}
+                        aiScore={station.aiScore}
+                        aiReasons={station.aiReasons}
+                      />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+
+              {filteredStations.length > 30 && (
+                <div className="text-center mt-8">
+                  <Button variant="outline">
+                    {t('common.viewAll')} {filteredStations.length - 30}
+                  </Button>
+                </div>
+              )}
             </div>
 
-            {loading ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <StationCardSkeleton key={index} />
-                ))}
+            {/* Sidebar - AI Recommendation Panel */}
+            <div className="hidden lg:block w-80 flex-shrink-0">
+              <div className="sticky top-24">
+                <AIRecommendationPanel
+                  stations={stations}
+                  userLocation={userLocation}
+                  vehicle={defaultVehicle}
+                />
               </div>
-            ) : filteredStations.length === 0 ? (
-              <NoStationsFound />
-            ) : (
-              <motion.div
-                className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
-                }}
-              >
-                {filteredStations.slice(0, 30).map((station) => (
-                  <motion.div
-                    key={station.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0 },
-                    }}
-                  >
-                    <StationCard
-                      station={station}
-                      aiScore={station.aiScore}
-                      aiReasons={station.aiReasons}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-
-            {filteredStations.length > 30 && (
-              <div className="text-center mt-8">
-                <Button variant="outline">
-                  {t('common.viewAll')} {filteredStations.length - 30}
-                </Button>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </main>

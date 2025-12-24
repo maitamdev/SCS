@@ -2,24 +2,61 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SCS GO - Sạc xe thông minh</title>
-    <meta name="description" content="Tìm trạm sạc EV tối ưu, đặt chỗ trước và không bao giờ phải chờ đợi" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>SCS GO - Sạc xe điện thông minh</title>
+    <meta name="description" content="Tìm trạm sạc xe điện thông minh với AI. Đặt chỗ trước, so sánh giá, theo dõi thời gian thực. Hơn 150 trạm trên toàn quốc." />
     <meta name="author" content="SCS GO" />
-
-    <meta property="og:title" content="SCS GO - Sạc xe thông minh" />
-    <meta property="og:description" content="Tìm trạm sạc EV tối ưu, đặt chỗ trước và không bao giờ phải chờ đợi" />
+    <meta name="keywords" content="sạc xe điện, trạm sạc, EV charging, VinFast, Tesla, xe điện, đặt chỗ sạc" />
+    
+    <!-- Theme color -->
+    <meta name="theme-color" content="#10b981" />
+    <meta name="msapplication-TileColor" content="#10b981" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="SCS GO - Sạc xe điện thông minh" />
+    <meta property="og:description" content="Tìm trạm sạc xe điện thông minh với AI. Đặt chỗ trước, so sánh giá, theo dõi thời gian thực." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://scs-go.vercel.app" />
+    <meta property="og:image" content="https://scs-go.vercel.app/og-image.png" />
+    <meta property="og:site_name" content="SCS GO" />
+    <meta property="og:locale" content="vi_VN" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="SCS GO - Sạc xe thông minh" />
-    <meta name="twitter:description" content="Tìm trạm sạc EV tối ưu, đặt chỗ trước và không bao giờ phải chờ đợi" />
+    <meta name="twitter:title" content="SCS GO - Sạc xe điện thông minh" />
+    <meta name="twitter:description" content="Tìm trạm sạc xe điện thông minh với AI. Đặt chỗ trước, so sánh giá, theo dõi thời gian thực." />
+    <meta name="twitter:image" content="https://scs-go.vercel.app/og-image.png" />
 
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SCS GO" />
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://mukdmszhgwpqhdlswhfd.supabase.co" />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

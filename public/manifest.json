@@ -1,0 +1,42 @@
+{
+  "name": "SCS GO - Smart EV Charging",
+  "short_name": "SCS GO",
+  "description": "Tìm trạm sạc xe điện thông minh với AI. Đặt chỗ trước, so sánh giá, theo dõi thời gian thực.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "navigation", "lifestyle"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Tìm trạm sạc",
+      "short_name": "Tìm trạm",
+      "description": "Tìm trạm sạc gần bạn",
+      "url": "/explore",
+      "icons": [{ "src": "/logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Lịch đặt chỗ",
+      "short_name": "Đặt chỗ",
+      "description": "Xem lịch đặt chỗ của bạn",
+      "url": "/dashboard/bookings",
+      "icons": [{ "src": "/logo.png", "sizes": "96x96" }]
+    }
+  ]
+}

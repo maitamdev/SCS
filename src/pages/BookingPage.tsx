@@ -5,8 +5,10 @@ import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { useStation } from '@/hooks/useStations';
 import { useBookings, useStationBookings } from '@/hooks/useBookings';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { sendBookingConfirmationEmail } from '@/lib/email';
 import { Charger } from '@/types';
 import { CONNECTOR_LABELS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -103,6 +105,7 @@ export default function BookingPage() {
 
   const { station, loading: stationLoading } = useStation(id || '');
   const { createBooking } = useBookings();
+  const { user } = useAuth();
   const { isTimeSlotAvailable, loading: bookingsLoading } = useStationBookings(id || '', selectedCharger?.id);
   const { toast } = useToast();
   
@@ -231,6 +234,23 @@ export default function BookingPage() {
       });
     } else {
       setBookingComplete(true);
+      
+      // Send booking confirmation email
+      if (user?.email) {
+        const bookingCode = `SCS${Date.now().toString().slice(-8)}`;
+        sendBookingConfirmationEmail({
+          userEmail: user.email,
+          userName: user.profile?.full_name || 'Khách hàng',
+          stationName: station.name,
+          stationAddress: station.address,
+          chargerName: `${selectedCharger.connector_type} - ${selectedCharger.power_kw}kW`,
+          bookingDate: selectedTime.toLocaleDateString('vi-VN'),
+          bookingTime: selectedTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          duration: duration,
+          totalAmount: totalPrice,
+          bookingCode: bookingCode,
+        });
+      }
     }
   };
 

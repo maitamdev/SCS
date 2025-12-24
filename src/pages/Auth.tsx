@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,9 +22,13 @@ type AuthMode = 'login' | 'register';
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signIn, signUp, signInWithGoogle, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+  
+  // Get the page user was trying to access before being redirected to login
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
   
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -42,12 +46,12 @@ export default function Auth() {
     if (user && !authLoading) {
       // Check if onboarding is completed
       if (user.profile?.onboarding_completed) {
-        navigate('/dashboard');
+        navigate(from, { replace: true });
       } else {
-        navigate('/onboarding');
+        navigate('/onboarding', { replace: true });
       }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

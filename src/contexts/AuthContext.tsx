@@ -9,8 +9,9 @@ import {
   updateProfile as firebaseUpdateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
+import { auth, db, googleProvider } from '@/lib/firebase';
 import { Profile, Vehicle } from '@/types';
+import { sendWelcomeEmail } from '@/lib/email';
 
 interface User {
   id: string;
@@ -185,6 +186,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           createdAt: new Date().toISOString(),
         });
       }
+      
+      // Send welcome email
+      sendWelcomeEmail({
+        userEmail: email,
+        userName: name,
+      });
       
       return { error: null };
     } catch (error: unknown) {

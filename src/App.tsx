@@ -3,9 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { usePageTracking } from "@/hooks/useAnalytics";
 import Landing from "./pages/Landing";
 import Explore from "./pages/Explore";
 import StationDetail from "./pages/StationDetail";
@@ -23,37 +27,53 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Analytics wrapper component
+function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+  usePageTracking();
+  return <>{children}</>;
+}
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <ThemeProvider>
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/station/:id" element={<StationDetail />} />
-                <Route path="/booking/:id" element={<BookingPage />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/vehicle" element={<VehicleSettings />} />
-                <Route path="/dashboard/bookings" element={<MyBookings />} />
-                <Route path="/dashboard/favorites" element={<Favorites />} />
-                <Route path="/dashboard/subscription" element={<Subscription />} />
-                <Route path="/dashboard/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <AnalyticsProvider>
+                    <Routes>
+                      {/* Public routes */}
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/explore" element={<Explore />} />
+                      <Route path="/station/:id" element={<StationDetail />} />
+                      <Route path="/pricing" element={<Pricing />} />
+                      <Route path="/auth" element={<Auth />} />
+                      
+                      {/* Protected routes - require login */}
+                      <Route path="/booking/:id" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
+                      <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                      <Route path="/dashboard/vehicle" element={<ProtectedRoute><VehicleSettings /></ProtectedRoute>} />
+                      <Route path="/dashboard/bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+                      <Route path="/dashboard/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+                      <Route path="/dashboard/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+                      <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                      
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AnalyticsProvider>
+                </BrowserRouter>
+              </TooltipProvider>
+            </LanguageProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );
 
 export default App;

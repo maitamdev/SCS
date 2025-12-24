@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { useBookings, Booking } from '@/hooks/useBookings';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { sendBookingCancelledEmail } from '@/lib/email';
 import { 
   Calendar,
   Clock,
@@ -28,6 +30,7 @@ export default function MyBookings() {
   const [tab, setTab] = useState<BookingTab>('upcoming');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const { bookings, loading, cancelBooking } = useBookings();
+  const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -46,6 +49,7 @@ export default function MyBookings() {
 
   const handleCancel = async (bookingId: string) => {
     setCancellingId(bookingId);
+    const bookingToCancel = bookings.find(b => b.id === bookingId);
     const { error } = await cancelBooking(bookingId);
     
     if (error) {
@@ -60,6 +64,22 @@ export default function MyBookings() {
         description: t('bookings.cancelSuccess'),
       });
       setSelectedBooking(null);
+      
+      // Send cancellation email
+      if (user?.email && bookingToCancel) {
+        sendBookingCancelledEmail({
+          userEmail: user.email,
+          userName: user.profile?.full_name || 'Khách hàng',
+          stationName: bookingToCancel.station?.name || 'Trạm sạc',
+          stationAddress: bookingToCancel.station?.address || '',
+          chargerName: bookingToCancel.charger ? `${bookingToCancel.charger.connector_type} - ${bookingToCancel.charger.power_kw}kW` : '',
+          bookingDate: new Date(bookingToCancel.start_time).toLocaleDateString('vi-VN'),
+          bookingTime: new Date(bookingToCancel.start_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          duration: Math.round((new Date(bookingToCancel.end_time).getTime() - new Date(bookingToCancel.start_time).getTime()) / 60000),
+          totalAmount: bookingToCancel.total_price,
+          bookingCode: bookingToCancel.id.slice(-8).toUpperCase(),
+        });
+      }
     }
     setCancellingId(null);
   };
