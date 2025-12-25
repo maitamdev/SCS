@@ -9,15 +9,15 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/logo.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "/logo.png",
+      "src": "/logo.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ],
@@ -29,14 +29,14 @@
       "short_name": "Tìm trạm",
       "description": "Tìm trạm sạc gần bạn",
       "url": "/explore",
-      "icons": [{ "src": "/logo.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/logo.jpg", "sizes": "96x96" }]
     },
     {
       "name": "Lịch đặt chỗ",
       "short_name": "Đặt chỗ",
       "description": "Xem lịch đặt chỗ của bạn",
       "url": "/dashboard/bookings",
-      "icons": [{ "src": "/logo.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/logo.jpg", "sizes": "96x96" }]
     }
   ]
 }

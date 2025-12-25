@@ -92,7 +92,7 @@ export default function ForgotPassword() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 mb-8">
           <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/30">
-            <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
+            <img src="/logo.jpg" alt="SCS GO" className="w-full h-full object-cover" />
           </div>
           <span className="text-xl font-bold gradient-text">SCS GO</span>
         </Link>

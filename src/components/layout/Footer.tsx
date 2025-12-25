@@ -40,7 +40,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl overflow-hidden">
-                <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
+                <img src="/logo.jpg" alt="SCS GO" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-bold gradient-text">SCS GO</span>
             </Link>

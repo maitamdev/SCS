@@ -46,19 +46,18 @@ export function useNotifications() {
       if (registration) {
         await registration.showNotification(options.title, {
           body: options.body,
-          icon: options.icon || '/logo.png',
-          badge: '/logo.png',
+          icon: options.icon || '/logo.jpg',
+          badge: '/logo.jpg',
           tag: options.tag,
           data: options.data,
-          vibrate: [100, 50, 100],
           requireInteraction: true,
-        });
+        } as NotificationOptions);
         return true;
       } else {
         // Fallback to regular notification
         const notification = new Notification(options.title, {
           body: options.body,
-          icon: options.icon || '/logo.png',
+          icon: options.icon || '/logo.jpg',
           tag: options.tag,
           data: options.data,
         });

@@ -121,7 +121,7 @@ export default function Auth() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 mb-8">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/30">
-              <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
+              <img src="/logo.jpg" alt="SCS GO" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold gradient-text">SCS GO</span>
           </Link>
@@ -286,7 +286,7 @@ export default function Auth() {
           transition={{ delay: 0.2 }}
         >
           <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-6 shadow-lg shadow-primary/30">
-            <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
+            <img src="/logo.jpg" alt="SCS GO" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-3xl font-bold mb-4">
             Sạc xe thông minh với <span className="gradient-text">SCS GO</span>

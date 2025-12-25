@@ -3,7 +3,7 @@ const CACHE_NAME = 'scs-go-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/logo.png',
+  '/logo.jpg',
   '/manifest.json',
 ];
 
@@ -81,8 +81,8 @@ self.addEventListener('push', (event) => {
   
   const options = {
     body: data.body,
-    icon: '/logo.png',
-    badge: '/logo.png',
+    icon: '/logo.jpg',
+    badge: '/logo.jpg',
     vibrate: [100, 50, 100],
     data: {
       url: data.url || '/',

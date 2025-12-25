@@ -67,7 +67,7 @@ export function Header() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <img src="/logo.png" alt="SCS GO" className="w-full h-full object-cover" />
+            <img src="/logo.jpg" alt="SCS GO" className="w-full h-full object-cover" />
           </motion.div>
           <span className="text-xl font-bold gradient-text">SCS GO</span>
         </Link>
