@@ -75,7 +75,7 @@ export default {
         "3xl": "1.5rem",
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Times New Roman"', 'Times', 'serif'],
       },
       keyframes: {
         "accordion-down": {
